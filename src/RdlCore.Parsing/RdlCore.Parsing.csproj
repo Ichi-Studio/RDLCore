@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RdlCore.Parsing</RootNamespace>
+    <AssemblyName>RdlCore.Parsing</AssemblyName>
+    <PackageId>RdlCore.Parsing</PackageId>
+    <Description>Document parsing module for Word and PDF documents</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RdlCore.Abstractions\RdlCore.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="PaddleOCRSharp" />
+  </ItemGroup>
+
+</Project>

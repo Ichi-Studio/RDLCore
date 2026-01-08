@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RdlCore.Rendering</name>
+    </assembly>
+    <members>
+        <member name="T:RdlCore.Rendering.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering rendering services
+            </summary>
+        </member>
+        <member name="M:RdlCore.Rendering.ServiceCollectionExtensions.AddRdlCoreRendering(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds rendering and validation services
+            </summary>
+        </member>
+        <member name="T:RdlCore.Rendering.ValidationService">
+            <summary>
+            Implementation of validation service
+            </summary>
+        </member>
+        <member name="M:RdlCore.Rendering.ValidationService.ValidateSchemaAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Rendering.ValidationService.ValidateExpressionsAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Rendering.ValidationService.CompareVisualsAsync(System.Byte[],System.Byte[],System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Rendering.ValidationService.RenderToPdfAsync(System.Xml.Linq.XDocument,System.Data.DataSet,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:RdlCore.Rendering.Validation.SsimCalculator">
+            <summary>
+            Calculates Structural Similarity Index (SSIM) for visual comparison
+            </summary>
+        </member>
+        <member name="M:RdlCore.Rendering.Validation.SsimCalculator.Calculate(System.Byte[],System.Byte[])">
+            <summary>
+            Calculates SSIM between two images
+            </summary>
+            <param name="image1">First image as byte array</param>
+            <param name="image2">Second image as byte array</param>
+            <returns>SSIM score between 0 and 1</returns>
+        </member>
+        <member name="M:RdlCore.Rendering.Validation.SsimCalculator.CalculateWindowed(System.Byte[],System.Byte[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Calculates SSIM with windowed approach for better accuracy
+            </summary>
+        </member>
+        <member name="T:RdlCore.Rendering.Validation.VisualComparer">
+            <summary>
+            Compares visual output between documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Rendering.Validation.VisualComparer.Compare(System.Byte[],System.Byte[])">
+            <summary>
+            Compares two images and returns the comparison result
+            </summary>
+        </member>
+        <member name="M:RdlCore.Rendering.Validation.VisualComparer.GenerateDifferenceImage(System.Byte[],System.Byte[])">
+            <summary>
+            Generates a difference image highlighting changes
+            </summary>
+        </member>
+    </members>
+</doc>

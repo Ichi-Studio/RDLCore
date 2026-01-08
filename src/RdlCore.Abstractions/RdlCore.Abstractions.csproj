@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RdlCore.Abstractions</RootNamespace>
+    <AssemblyName>RdlCore.Abstractions</AssemblyName>
+    <PackageId>RdlCore.Abstractions</PackageId>
+    <Description>Core abstractions, interfaces, and models for Axiom RDL-Core</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>

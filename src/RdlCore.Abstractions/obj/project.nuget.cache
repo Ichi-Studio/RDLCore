@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "stVMuo+pHGY=",
+  "success": true,
+  "projectFilePath": "C:\\MyDemo\\RDLCore\\src\\RdlCore.Abstractions\\RdlCore.Abstractions.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\IchiShan\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0\\microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512",
+    "C:\\Users\\IchiShan\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.0\\microsoft.extensions.logging.abstractions.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

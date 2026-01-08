@@ -1,0 +1,770 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Axiom.RdlCore.Logic</name>
+    </assembly>
+    <members>
+        <member name="T:Axiom.RdlCore.Logic.Extraction.AstBuilder">
+            <summary>
+            Builds Abstract Syntax Trees from expressions
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.AstBuilder.Build(System.String)">
+            <summary>
+            Builds an AST from a simple expression string
+            </summary>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.Extraction.ConditionalAnalyzer">
+            <summary>
+            Analyzes conditional logic in field codes
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.ConditionalAnalyzer.AnalyzeConditions(System.Collections.Generic.IEnumerable{Axiom.RdlCore.Abstractions.Models.FieldCode})">
+            <summary>
+            Analyzes field codes to extract conditional branches
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.ConditionalAnalyzer.FlattenNestedConditions(Axiom.RdlCore.Abstractions.Models.ConditionalBranch)">
+            <summary>
+            Identifies nested conditionals
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.ConditionalAnalyzer.CanConvertToSwitch(System.Collections.Generic.IEnumerable{Axiom.RdlCore.Abstractions.Models.ConditionalBranch})">
+            <summary>
+            Checks if a conditional can be converted to a Switch statement
+            </summary>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.Extraction.FieldCodeParser">
+            <summary>
+            Parses field codes from Word documents and builds AST representations
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.Parse(Axiom.RdlCore.Abstractions.Models.FieldCode)">
+            <summary>
+            Parses a field code string into an AST
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.IfFieldRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>IF\\s+(?&lt;condition&gt;.+?)\\s+(?&lt;true&gt;"[^"]*"|[^\\s"]+)(?:\\s+(?&lt;false&gt;"[^"]*"|[^\\s"]+))?</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Ii].<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a whitespace character greedily at least once.<br/>
+            ○ "condition" capture group.<br/>
+                ○ Match a character other than '\n' lazily at least once.<br/>
+            ○ Match a whitespace character greedily at least once.<br/>
+            ○ "true" capture group.<br/>
+                ○ Match with 2 alternative expressions.<br/>
+                    ○ Match a sequence of expressions.<br/>
+                        ○ Match '"'.<br/>
+                        ○ Match a character other than '"' atomically any number of times.<br/>
+                        ○ Match '"'.<br/>
+                    ○ Match a character in the set [^"\s] greedily at least once.<br/>
+            ○ Optional (greedy).<br/>
+                ○ Match a whitespace character greedily at least once.<br/>
+                ○ "false" capture group.<br/>
+                    ○ Match with 2 alternative expressions, atomically.<br/>
+                        ○ Match a sequence of expressions.<br/>
+                            ○ Match '"'.<br/>
+                            ○ Match a character other than '"' atomically any number of times.<br/>
+                            ○ Match '"'.<br/>
+                        ○ Match a character in the set [^"\s] atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.ComparisonRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>(?&lt;left&gt;.+?)\\s*(?&lt;op&gt;=|&lt;&gt;|!=|&gt;=|&lt;=|&gt;|&lt;)\\s*(?&lt;right&gt;.+)</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ "left" capture group.<br/>
+                ○ Match a character other than '\n' lazily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ "op" capture group.<br/>
+                ○ Match with 6 alternative expressions.<br/>
+                    ○ Match '='.<br/>
+                    ○ Match the string "&lt;&gt;".<br/>
+                    ○ Match the string "!=".<br/>
+                    ○ Match the string "&gt;=".<br/>
+                    ○ Match the string "&lt;=".<br/>
+                    ○ Match a character in the set [&lt;&gt;].<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ "right" capture group.<br/>
+                ○ Match a character other than '\n' atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.MergeFieldInValueRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>\\{\\s*MERGEFIELD\\s+(\\w+)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match '{'.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match a character in the set [Mm].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Rr].<br/>
+            ○ Match a character in the set [Gg].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a character in the set [Ii].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ll].<br/>
+            ○ Match a character in the set [Dd].<br/>
+            ○ Match a whitespace character atomically at least once.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a word character atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.QuotedStringRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>^"(.*)"$</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Match '"'.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+            ○ Match '"'.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Extraction.FieldCodeParser.MergeFieldNameRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>MERGEFIELD\\s+(\\w+)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Mm].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Rr].<br/>
+            ○ Match a character in the set [Gg].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a character in the set [Ii].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ll].<br/>
+            ○ Match a character in the set [Dd].<br/>
+            ○ Match a whitespace character atomically at least once.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a word character atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.LogicDecompositionService">
+            <summary>
+            Implementation of logic decomposition service
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicDecompositionService.ExtractFieldCodesAsync(Axiom.RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicDecompositionService.BuildAstAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicDecompositionService.IdentifyConditionsAsync(Axiom.RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.LogicTranslationService">
+            <summary>
+            Implementation of logic translation service
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicTranslationService.TranslateToVbExpressionAsync(Axiom.RdlCore.Abstractions.Models.AbstractSyntaxTree,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicTranslationService.ValidateExpressionAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.LogicTranslationService.OptimizeExpressionAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering logic services
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.ServiceCollectionExtensions.AddRdlCoreLogic(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds logic extraction and translation services
+            </summary>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer">
+            <summary>
+            Optimizes VB expressions for better performance and readability
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer.Optimize(System.String)">
+            <summary>
+            Optimizes a VB expression
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer.DoubleParenRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>\\(\\(([^()]+)\\)\\)</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match the string "((".<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character in the set [^()] atomically at least once.<br/>
+            ○ Match the string "))".<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer.DoubleNotRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>Not\\s+Not\\s+(.+)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Nn].<br/>
+            ○ Match a character in the set [Oo].<br/>
+            ○ Match a character in the set [Tt].<br/>
+            ○ Match a whitespace character atomically at least once.<br/>
+            ○ Match a character in the set [Nn].<br/>
+            ○ Match a character in the set [Oo].<br/>
+            ○ Match a character in the set [Tt].<br/>
+            ○ Match a whitespace character greedily at least once.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character other than '\n' atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer.TrueConditionRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>IIf\\s*\\(\\s*True\\s*,\\s*([^,]+)\\s*,\\s*[^)]+\\s*\\)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Ii] exactly 2 times.<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match '('.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match a character in the set [Tt].<br/>
+            ○ Match a character in the set [Rr].<br/>
+            ○ Match a character in the set [Uu].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ','.<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character other than ',' greedily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ','.<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ Match a character other than ')' greedily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ')'.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.ExpressionOptimizer.FalseConditionRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>IIf\\s*\\(\\s*False\\s*,\\s*[^,]+\\s*,\\s*([^)]+)\\s*\\)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Ii] exactly 2 times.<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match '('.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a character in the set [Aa].<br/>
+            ○ Match a character in the set [Ll].<br/>
+            ○ Match a character in the set [Ss].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ','.<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ Match a character other than ',' greedily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ','.<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character other than ')' greedily at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match ')'.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.Translation.SandboxValidator">
+            <summary>
+            Validates expressions against RDL sandbox security rules
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.SandboxValidator.Validate(System.String)">
+            <summary>
+            Validates an expression against sandbox rules
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.SandboxValidator.ValidateOrThrow(System.String)">
+            <summary>
+            Validates an expression and throws if invalid
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.SandboxValidator.FunctionCallRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>(\\w+)\\s*\\(</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ 1st capture group.<br/>
+                ○ Match a word character atomically at least once.<br/>
+            ○ Match a whitespace character atomically any number of times.<br/>
+            ○ Match '('.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.SandboxValidator.NamespaceRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>[A-Z][a-z]+(?:\\.[A-Z][a-z]+)+</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [A-Z].<br/>
+            ○ Match a character in the set [a-z] atomically at least once.<br/>
+            ○ Loop atomically at least once.<br/>
+                ○ Match '.'.<br/>
+                ○ Match a character in the set [A-Z].<br/>
+                ○ Match a character in the set [a-z] atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="T:Axiom.RdlCore.Logic.Translation.VbExpressionGenerator">
+            <summary>
+            Generates VBScript expressions from AST for RDLC reports
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Logic.Translation.VbExpressionGenerator.Generate(Axiom.RdlCore.Abstractions.Models.AbstractSyntaxTree)">
+            <summary>
+            Generates a VB expression string from an AST
+            </summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IfFieldRegex_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the IfFieldRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.IfFieldRegex_0.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IfFieldRegex_0.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.IfFieldRegex_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.ComparisonRegex_1">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the ComparisonRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.ComparisonRegex_1.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.ComparisonRegex_1.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.ComparisonRegex_1.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the MergeFieldInValueRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldInValueRegex_2.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.QuotedStringRegex_3">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the QuotedStringRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.QuotedStringRegex_3.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the MergeFieldNameRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldNameRegex_4.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleParenRegex_5">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the DoubleParenRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleParenRegex_5.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleNotRegex_6">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the DoubleNotRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.DoubleNotRegex_6.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TrueConditionRegex_7">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the TrueConditionRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.TrueConditionRegex_7.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FalseConditionRegex_8">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the FalseConditionRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FalseConditionRegex_8.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FunctionCallRegex_9">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the FunctionCallRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.FunctionCallRegex_9.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.NamespaceRegex_10">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the NamespaceRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.NamespaceRegex_10.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.NamespaceRegex_10.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.NamespaceRegex_10.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Utilities">
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
+            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.IndexOfAnyWordChar(System.ReadOnlySpan{System.Char})">
+            <summary>Finds the next index of any character that matches a word character.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.IsWordChar(System.Char)">
+            <summary>Determines whether the character is part of the [\w] set.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPop(System.Int32[],System.Int32@,System.Int32@,System.Int32@)">
+            <summary>Pops 2 values from the backtracking stack.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32)">
+            <summary>Pushes 1 value onto the backtracking stack.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32,System.Int32)">
+            <summary>Pushes 2 values onto the backtracking stack.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32,System.Int32,System.Int32)">
+            <summary>Pushes 3 values onto the backtracking stack.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.WordCategoriesMask">
+            <summary>Provides a mask of Unicode categories that combine to form [\w].</summary>
+        </member>
+        <member name="P:System.Text.RegularExpressions.Generated.Utilities.WordCharBitmap">
+            <summary>Gets a bitmap for whether each character 0 through 127 is in [\w]</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_asciiExceptWordChars">
+            <summary>Supports searching for characters in or not in "\0\u0001\u0002\u0003\u0004\u0005\u0006\a\b\t\n\v\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\\]^`{|}~\u007f".</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_C94AE607B1711C3F90CF8B8C224548ED74A865FE986797F62276464CE6F9271D">
+            <summary>Supports searching for the string "((".</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_if_OrdinalIgnoreCase">
+            <summary>Supports searching for the string "if".</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_iif_OrdinalIgnoreCase">
+            <summary>Supports searching for the string "iif".</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_mergefield_OrdinalIgnoreCase">
+            <summary>Supports searching for the string "mergefield".</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_not_OrdinalIgnoreCase">
+            <summary>Supports searching for the string "not".</summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RdlCore.Generation</name>
+    </assembly>
+    <members>
+        <member name="T:RdlCore.Generation.Components.TablixGenerator">
+            <summary>
+            Generates Tablix elements for RDL reports
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Components.TablixGenerator.CreateTablix(RdlCore.Abstractions.Models.TableElement,RdlCore.Abstractions.Models.DataSetBinding,System.Double,System.Double)">
+            <summary>
+            Creates a Tablix element from a table
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Components.TablixGenerator.CreateTablixFromStructure(RdlCore.Abstractions.Models.TableStructure,RdlCore.Abstractions.Models.DataSetBinding,System.Double,System.Double)">
+            <summary>
+            Creates a Tablix from a table structure with dataset binding
+            </summary>
+        </member>
+        <member name="T:RdlCore.Generation.Components.TextboxGenerator">
+            <summary>
+            Generates Textbox elements for RDL reports
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Components.TextboxGenerator.CreateTextbox(RdlCore.Abstractions.Models.ParagraphElement,System.Double,System.Double)">
+            <summary>
+            Creates a Textbox element from a paragraph
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Components.TextboxGenerator.CreateSimpleTextbox(System.String,System.String,System.Double,System.Double,System.Double,System.Double,System.Boolean)">
+            <summary>
+            Creates a simple Textbox with text
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Components.TextboxGenerator.CreateExpressionTextbox(System.String,System.String,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Creates a Textbox with an expression
+            </summary>
+        </member>
+        <member name="T:RdlCore.Generation.SchemaSynthesisService">
+            <summary>
+            Implementation of schema synthesis service
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.SchemaSynthesisService.GenerateRdlDocumentAsync(RdlCore.Abstractions.Models.DocumentStructureModel,RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Generation.SchemaSynthesisService.CreateTablixAsync(RdlCore.Abstractions.Models.TableStructure,RdlCore.Abstractions.Models.DataSetBinding,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Generation.SchemaSynthesisService.CreateTextboxAsync(RdlCore.Abstractions.Models.ParagraphElement,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Generation.SchemaSynthesisService.GenerateMultipleRdlDocumentsAsync(RdlCore.Abstractions.Models.DocumentStructureModel,RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Generation.SchemaSynthesisService.ValidateAgainstSchemaAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:RdlCore.Generation.Schema.RdlDocumentBuilder">
+            <summary>
+            Builds RDL documents from document models
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.CreateEmptyDocument(System.String)">
+            <summary>
+            Creates an empty RDL document with basic structure
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.CreateDataSources(System.String)">
+            <summary>
+            Creates the DataSources element with a default data source
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.CreateDataSets(System.String)">
+            <summary>
+            Creates the DataSets element with a default placeholder field
+            RDL 2016 Schema requires Fields element to contain at least one Field
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.CreateReportSections">
+            <summary>
+            Creates the ReportSections element
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.AddDataField(System.Xml.Linq.XDocument,System.String,System.String,System.String)">
+            <summary>
+            Adds a data field to the document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.AddReportItem(System.Xml.Linq.XDocument,System.Xml.Linq.XElement)">
+            <summary>
+            Adds a report item to the body
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.SetPageHeader(System.Xml.Linq.XDocument,System.Xml.Linq.XElement,System.Boolean,System.Boolean)">
+            <summary>
+            Sets the page header
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.SetPageHeader(System.Xml.Linq.XDocument,System.Xml.Linq.XElement[],System.Double,System.Boolean,System.Boolean)">
+            <summary>
+            Sets the page header with multiple items and custom height
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.SetPageFooter(System.Xml.Linq.XDocument,System.Xml.Linq.XElement,System.Boolean,System.Boolean)">
+            <summary>
+            Sets the page footer
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlDocumentBuilder.UpdateBodyHeight(System.Xml.Linq.XDocument,System.Double)">
+            <summary>
+            Updates the body height based on content
+            </summary>
+        </member>
+        <member name="T:RdlCore.Generation.Schema.RdlNamespaces">
+            <summary>
+            Defines RDL 2016 namespaces used in RDLC files
+            </summary>
+        </member>
+        <member name="F:RdlCore.Generation.Schema.RdlNamespaces.Rdl">
+            <summary>
+            Primary RDL 2016 namespace
+            </summary>
+        </member>
+        <member name="F:RdlCore.Generation.Schema.RdlNamespaces.ReportDesigner">
+            <summary>
+            Report Designer namespace
+            </summary>
+        </member>
+        <member name="F:RdlCore.Generation.Schema.RdlNamespaces.RdlPrefix">
+            <summary>
+            Default namespace alias for RDL
+            </summary>
+        </member>
+        <member name="F:RdlCore.Generation.Schema.RdlNamespaces.RdPrefix">
+            <summary>
+            Namespace alias for Report Designer
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlNamespaces.GetDefaultNamespaceAttributes">
+            <summary>
+            Gets the default namespace declaration for RDL documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlNamespaces.RdlElement(System.String,System.Object[])">
+            <summary>
+            Creates an element in the RDL namespace
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlNamespaces.RdElement(System.String,System.Object[])">
+            <summary>
+            Creates an element in the Report Designer namespace
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlNamespaces.SanitizeXmlString(System.String)">
+            <summary>
+            Removes invalid XML 1.0 characters from a string.
+            XML 1.0 only allows: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.Schema.RdlNamespaces.IsValidXmlChar(System.Char)">
+            <summary>
+            Checks if a character is valid in XML 1.0
+            </summary>
+        </member>
+        <member name="T:RdlCore.Generation.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering generation services
+            </summary>
+        </member>
+        <member name="M:RdlCore.Generation.ServiceCollectionExtensions.AddRdlCoreGeneration(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds RDLC generation services
+            </summary>
+        </member>
+    </members>
+</doc>

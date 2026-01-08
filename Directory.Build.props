@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    
+    <!-- Project Information -->
+    <Authors>Axiom RDL-Core Team</Authors>
+    <Company>Axiom</Company>
+    <Product>Axiom RDL-Core</Product>
+    <Version>1.0.0</Version>
+    <Description>RDL Modernization Architect - Convert legacy documents to modern RDLC reports</Description>
+    
+    <!-- Build Settings -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS0219;CS1573;CA1848;CA1822;CA1866;CA1310;CA1859;CA1725;CA1305;CA1304;CA1311;CA1826;CA1860;CS8604;CA1050;CA1805;CA1829;CA1707</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>true</Optimize>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+</Project>

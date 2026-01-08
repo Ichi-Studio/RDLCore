@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RdlCore.Generation</RootNamespace>
+    <AssemblyName>RdlCore.Generation</AssemblyName>
+    <PackageId>RdlCore.Generation</PackageId>
+    <Description>RDLC report generation module</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RdlCore.Abstractions\RdlCore.Abstractions.csproj" />
+    <ProjectReference Include="..\RdlCore.Logic\RdlCore.Logic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

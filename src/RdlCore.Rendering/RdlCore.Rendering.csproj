@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RdlCore.Rendering</RootNamespace>
+    <AssemblyName>RdlCore.Rendering</AssemblyName>
+    <PackageId>RdlCore.Rendering</PackageId>
+    <Description>Rendering and validation module for RDLC reports</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RdlCore.Abstractions\RdlCore.Abstractions.csproj" />
+    <ProjectReference Include="..\RdlCore.Logic\RdlCore.Logic.csproj" />
+    <ProjectReference Include="..\RdlCore.Generation\RdlCore.Generation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="SkiaSharp" />
+  </ItemGroup>
+
+</Project>

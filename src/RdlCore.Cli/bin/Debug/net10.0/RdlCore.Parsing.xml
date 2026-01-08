@@ -1,0 +1,436 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RdlCore.Parsing</name>
+    </assembly>
+    <members>
+        <member name="T:RdlCore.Parsing.Common.DocumentTypeDetector">
+            <summary>
+            Detects the type of document based on content analysis
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.DocumentTypeDetector.#ctor(Microsoft.Extensions.Logging.ILogger{RdlCore.Parsing.Common.DocumentTypeDetector})">
+            <summary>
+            Creates a new DocumentTypeDetector
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.DocumentTypeDetector.DetectTypeAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Detects the document type from a stream
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.DocumentTypeDetector.DetectFromExtension(System.String)">
+            <summary>
+            Detects document type from file extension
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Common.BoundingBoxCalculator">
+            <summary>
+            Calculates bounding boxes for document elements
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.EmuToPoints(System.Int64)">
+            <summary>
+            Converts EMU (English Metric Units) to points
+            1 inch = 914400 EMU, 1 inch = 72 points
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.TwipsToPoints(System.Int32)">
+            <summary>
+            Converts twips to points (20 twips = 1 point)
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.PointsToInches(System.Double)">
+            <summary>
+            Converts points to inches
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.InchesToPoints(System.Double)">
+            <summary>
+            Converts inches to points
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.Union(System.Collections.Generic.IEnumerable{RdlCore.Abstractions.Models.BoundingBox})">
+            <summary>
+            Calculates the union of multiple bounding boxes
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Common.BoundingBoxCalculator.Intersects(RdlCore.Abstractions.Models.BoundingBox,RdlCore.Abstractions.Models.BoundingBox)">
+            <summary>
+            Checks if two bounding boxes intersect
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.DocumentPerceptionService">
+            <summary>
+            Implementation of document perception service
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.DocumentPerceptionService.AnalyzeAsync(System.IO.Stream,RdlCore.Abstractions.Enums.DocumentType,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.DocumentPerceptionService.IdentifyLogicalRolesAsync(RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.DocumentPerceptionService.ExtractLayoutAsync(RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.DocumentPerceptionService.AnalyzePagesAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.PdfDocumentParser">
+            <summary>
+            Parses PDF documents into document structure models
+            </summary>
+        </member>
+        <member name="P:RdlCore.Parsing.Pdf.PdfDocumentParser.SupportedType">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.PdfDocumentParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.LayoutAnalyzer">
+            <summary>
+            Analyzes the layout of PDF documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.LayoutAnalyzer.IdentifyRegions(System.Collections.Generic.IEnumerable{RdlCore.Abstractions.Models.ContentElement},System.Double,System.Double)">
+            <summary>
+            Identifies logical regions in a page based on layout analysis
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.LayoutAnalyzer.DetectTables(System.Collections.Generic.IEnumerable{RdlCore.Abstractions.Models.ContentElement})">
+            <summary>
+            Detects table structures in page content
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.OcrEngine">
+            <summary>
+            OCR engine for extracting text from scanned PDFs and images using PaddleOCR
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrEngine.GetEngine">
+            <summary>
+            Gets or initializes the PaddleOCR engine
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrEngine.RecognizeAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Performs OCR on an image
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrEngine.RecognizeFromFileAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Performs OCR on an image file
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrEngine.MeetsConfidenceThreshold(System.Double)">
+            <summary>
+            Checks if OCR confidence meets threshold
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.OcrProcessingException">
+            <summary>
+            Exception thrown when OCR processing fails
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.OcrResult">
+            <summary>
+            Result of OCR processing
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrResult.#ctor(System.String,System.Double,System.Collections.Generic.IReadOnlyList{RdlCore.Parsing.Pdf.OcrWord})">
+            <summary>
+            Result of OCR processing
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Pdf.OcrWord">
+            <summary>
+            Individual word from OCR
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Pdf.OcrWord.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Double)">
+            <summary>
+            Individual word from OCR
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering parsing services
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.ServiceCollectionExtensions.AddRdlCoreParsing(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds parsing services to the service collection
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.DocBinaryConverter">
+            <summary>
+            Converts old binary .doc format to OpenXML .docx format
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.DocBinaryConverter.ConvertDocToDocxAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Converts a .doc binary stream to a .docx OpenXML stream
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.DocBinaryConverter.IsValidDocFormat(System.IO.Stream)">
+            <summary>
+            Checks if a stream contains a valid .doc binary format
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.FieldCodeExtractor">
+            <summary>
+            Extracts field codes from Word documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.FieldCodeExtractor.ExtractFieldCodes(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Extracts all field codes from a Word document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.FieldCodeExtractor.MergeFieldRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>MERGEFIELD\\s+(\\w+)</code><br/>
+            Options:<br/>
+            <code>RegexOptions.IgnoreCase</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [Mm].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Rr].<br/>
+            ○ Match a character in the set [Gg].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ff].<br/>
+            ○ Match a character in the set [Ii].<br/>
+            ○ Match a character in the set [Ee].<br/>
+            ○ Match a character in the set [Ll].<br/>
+            ○ Match a character in the set [Dd].<br/>
+            ○ Match a whitespace character atomically at least once.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a word character atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.FieldCodeExtractor.SwitchRegex">
+            <remarks>
+            Pattern:<br/>
+            <code>\\\\([#@*!])\\s*(?:"([^"]*)"|(\\S+))?</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match '\\'.<br/>
+            ○ 1st capture group.<br/>
+                ○ Match a character in the set [!#*@].<br/>
+            ○ Match a whitespace character greedily any number of times.<br/>
+            ○ Optional (greedy).<br/>
+                ○ Match with 2 alternative expressions, atomically.<br/>
+                    ○ Match a sequence of expressions.<br/>
+                        ○ Match '"'.<br/>
+                        ○ 2nd capture group.<br/>
+                            ○ Match a character other than '"' atomically any number of times.<br/>
+                        ○ Match '"'.<br/>
+                    ○ 3rd capture group.<br/>
+                        ○ Match any character other than a whitespace character atomically at least once.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.OpenXmlNavigator">
+            <summary>
+            Provides navigation utilities for OpenXML documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetBodyParagraphs(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets all paragraphs from the document body
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetBodyTables(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets all tables from the document body
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetHeaderParagraphs(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets header paragraphs
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetFooterParagraphs(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets footer paragraphs
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetImages(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets all images from the document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetSectionProperties(DocumentFormat.OpenXml.Packaging.WordprocessingDocument)">
+            <summary>
+            Gets section properties for page layout information
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetParagraphStyle(DocumentFormat.OpenXml.Packaging.WordprocessingDocument,DocumentFormat.OpenXml.Wordprocessing.Paragraph)">
+            <summary>
+            Gets the style definition for a paragraph
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.OpenXmlNavigator.GetEffectiveParagraphProperties(DocumentFormat.OpenXml.Packaging.WordprocessingDocument,DocumentFormat.OpenXml.Wordprocessing.Paragraph)">
+            <summary>
+            Resolves inherited styles for a paragraph
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.WordDocumentParser">
+            <summary>
+            Parses Word documents (.docx) into document structure models
+            </summary>
+        </member>
+        <member name="P:RdlCore.Parsing.Word.WordDocumentParser.SupportedType">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.DetectWordFormatAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Detects whether the stream contains a .doc (binary) or .docx (OpenXML) format
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.DetectParallelFormSections(DocumentFormat.OpenXml.Wordprocessing.Body)">
+            <summary>
+            Detects parallel form sections (side-by-side tables) in landscape documents
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.AssignRemainingElementsToForms(System.Collections.Generic.List{DocumentFormat.OpenXml.OpenXmlElement},System.String[],System.Collections.Generic.List{System.String})">
+            <summary>
+            Assigns unidentified elements to form groups based on content analysis
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.CountTableColumns(DocumentFormat.OpenXml.Wordprocessing.Table)">
+            <summary>
+            Counts the number of columns in a table
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.SplitContentByPageBreaks(DocumentFormat.OpenXml.Wordprocessing.Body)">
+            <summary>
+            Splits document content by page breaks and section breaks
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.WordDocumentParser.ExtractContentElementsFromNodesAsync(System.Collections.Generic.List{DocumentFormat.OpenXml.OpenXmlElement},DocumentFormat.OpenXml.Packaging.MainDocumentPart,System.Threading.CancellationToken)">
+            <summary>
+            Extracts content elements from a list of OpenXml nodes
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.ParallelFormSection">
+            <summary>
+            Represents a parallel form section (for side-by-side layouts)
+            </summary>
+        </member>
+        <member name="M:RdlCore.Parsing.Word.ParallelFormSection.#ctor(System.String,System.Collections.Generic.List{DocumentFormat.OpenXml.OpenXmlElement})">
+            <summary>
+            Represents a parallel form section (for side-by-side layouts)
+            </summary>
+        </member>
+        <member name="T:RdlCore.Parsing.Word.WordFormatType">
+            <summary>
+            Represents the Word document format type
+            </summary>
+        </member>
+        <member name="F:RdlCore.Parsing.Word.WordFormatType.Unknown">
+            <summary>Unknown format</summary>
+        </member>
+        <member name="F:RdlCore.Parsing.Word.WordFormatType.BinaryDoc">
+            <summary>Old binary .doc format (Word 97-2003)</summary>
+        </member>
+        <member name="F:RdlCore.Parsing.Word.WordFormatType.OpenXmlDocx">
+            <summary>New OpenXML .docx format (Word 2007+)</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldRegex_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the MergeFieldRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.MergeFieldRegex_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.SwitchRegex_1">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the SwitchRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.SwitchRegex_1.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.SwitchRegex_1.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.SwitchRegex_1.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Utilities">
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
+            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.IsWordChar(System.Char)">
+            <summary>Determines whether the character is part of the [\w] set.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32,System.Int32)">
+            <summary>Pushes 2 values onto the backtracking stack.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.WordCategoriesMask">
+            <summary>Provides a mask of Unicode categories that combine to form [\w].</summary>
+        </member>
+        <member name="P:System.Text.RegularExpressions.Generated.Utilities.WordCharBitmap">
+            <summary>Gets a bitmap for whether each character 0 through 127 is in [\w]</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_indexOfString_mergefield_OrdinalIgnoreCase">
+            <summary>Supports searching for the string "mergefield".</summary>
+        </member>
+    </members>
+</doc>

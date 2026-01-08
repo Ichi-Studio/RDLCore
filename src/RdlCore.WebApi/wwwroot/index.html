@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDL-Core | Pixel Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pixel-black: #0f0f23;
+            --pixel-dark: #1a1a2e;
+            --pixel-purple: #16213e;
+            --pixel-blue: #0f3460;
+            --pixel-cyan: #00fff5;
+            --pixel-green: #00ff41;
+            --pixel-yellow: #ffff00;
+            --pixel-orange: #ff6b00;
+            --pixel-red: #ff0040;
+            --pixel-pink: #ff00ff;
+            --pixel-white: #e0e0e0;
+            --pixel-gray: #888888;
+            --pixel-border: 4px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: var(--pixel-black);
+            color: var(--pixel-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            image-rendering: pixelated;
+        }
+
+        /* CRT Scanlines Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Pixel Border Mixin */
+        .pixel-border {
+            border: var(--pixel-border) solid var(--pixel-cyan);
+            box-shadow: 
+                inset -4px -4px 0 0 #005566,
+                inset 4px 4px 0 0 #66ffff,
+                0 0 0 4px var(--pixel-dark),
+                8px 8px 0 0 rgba(0, 255, 245, 0.2);
+        }
+
+        .pixel-border-green {
+            border-color: var(--pixel-green);
+            box-shadow: 
+                inset -4px -4px 0 0 #005500,
+                inset 4px 4px 0 0 #66ff66,
+                0 0 0 4px var(--pixel-dark),
+                8px 8px 0 0 rgba(0, 255, 65, 0.2);
+        }
+
+        .pixel-border-yellow {
+            border-color: var(--pixel-yellow);
+            box-shadow: 
+                inset -4px -4px 0 0 #666600,
+                inset 4px 4px 0 0 #ffff88,
+                0 0 0 4px var(--pixel-dark),
+                8px 8px 0 0 rgba(255, 255, 0, 0.2);
+        }
+
+        .pixel-border-red {
+            border-color: var(--pixel-red);
+            box-shadow: 
+                inset -4px -4px 0 0 #660020,
+                inset 4px 4px 0 0 #ff6688,
+                0 0 0 4px var(--pixel-dark);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, var(--pixel-purple) 0%, var(--pixel-dark) 100%);
+            padding: 24px;
+            text-align: center;
+            border-bottom: 4px solid var(--pixel-cyan);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--pixel-cyan),
+                var(--pixel-cyan) 8px,
+                transparent 8px,
+                transparent 16px
+            );
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            color: var(--pixel-cyan);
+            text-shadow: 
+                4px 4px 0 var(--pixel-blue),
+                -2px -2px 0 var(--pixel-pink);
+            letter-spacing: 4px;
+            animation: glitch 3s infinite;
+        }
+
+        .logo-sub {
+            font-size: 18px;
+            color: var(--pixel-green);
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+            98% { transform: translate(2px, 2px); }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            background: var(--pixel-dark);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            padding: 12px 20px;
+            background: var(--pixel-purple);
+            color: var(--pixel-gray);
+            border: 4px solid var(--pixel-gray);
+            cursor: pointer;
+            transition: all 0.1s;
+            text-transform: uppercase;
+        }
+
+        .nav-tab:hover {
+            color: var(--pixel-white);
+            border-color: var(--pixel-white);
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 var(--pixel-cyan);
+        }
+
+        .nav-tab.active {
+            color: var(--pixel-cyan);
+            border-color: var(--pixel-cyan);
+            background: var(--pixel-blue);
+            box-shadow: 0 0 20px rgba(0, 255, 245, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Panel */
+        .panel {
+            display: none;
+            background: var(--pixel-dark);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            color: var(--pixel-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .panel-title::before {
+            content: '>';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 4px dashed var(--pixel-cyan);
+            padding: 48px;
+            text-align: center;
+            background: var(--pixel-purple);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--pixel-green);
+            background: var(--pixel-blue);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--pixel-yellow);
+            background: var(--pixel-blue);
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 24px;
+            color: var(--pixel-cyan);
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 18px;
+            color: var(--pixel-gray);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Selected File Display */
+        .selected-file {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--pixel-purple);
+            margin-top: 16px;
+            border: 4px solid var(--pixel-green);
+        }
+
+        .selected-file.show {
+            display: flex;
+        }
+
+        .file-icon {
+            font-size: 32px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 20px;
+            color: var(--pixel-green);
+        }
+
+        .file-size {
+            font-size: 16px;
+            color: var(--pixel-gray);
+        }
+
+        .remove-file {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            padding: 8px 16px;
+            background: var(--pixel-red);
+            color: var(--pixel-white);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .option-group {
+            background: var(--pixel-purple);
+            padding: 16px;
+            border: 2px solid var(--pixel-blue);
+        }
+
+        .option-label {
+            font-size: 16px;
+            color: var(--pixel-cyan);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .pixel-input {
+            width: 100%;
+            padding: 12px;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            background: var(--pixel-black);
+            color: var(--pixel-green);
+            border: 4px solid var(--pixel-blue);
+            outline: none;
+        }
+
+        .pixel-input:focus {
+            border-color: var(--pixel-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 245, 0.3);
+        }
+
+        .pixel-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .pixel-checkbox input {
+            display: none;
+        }
+
+        .checkbox-box {
+            width: 24px;
+            height: 24px;
+            background: var(--pixel-black);
+            border: 4px solid var(--pixel-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .pixel-checkbox input:checked + .checkbox-box {
+            background: var(--pixel-cyan);
+            color: var(--pixel-black);
+        }
+
+        .checkbox-label {
+            font-size: 18px;
+            color: var(--pixel-white);
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            padding: 16px 32px;
+            border: 4px solid;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translate(-2px, -2px);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .btn-primary {
+            background: var(--pixel-cyan);
+            border-color: var(--pixel-cyan);
+            color: var(--pixel-black);
+            box-shadow: 4px 4px 0 #005566;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 6px 6px 0 #005566;
+        }
+
+        .btn-success {
+            background: var(--pixel-green);
+            border-color: var(--pixel-green);
+            color: var(--pixel-black);
+            box-shadow: 4px 4px 0 #005500;
+        }
+
+        .btn-warning {
+            background: var(--pixel-yellow);
+            border-color: var(--pixel-yellow);
+            color: var(--pixel-black);
+            box-shadow: 4px 4px 0 #666600;
+        }
+
+        .btn-danger {
+            background: var(--pixel-red);
+            border-color: var(--pixel-red);
+            color: var(--pixel-white);
+            box-shadow: 4px 4px 0 #660020;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            background: var(--pixel-purple);
+            margin-top: 20px;
+            border: 4px solid var(--pixel-yellow);
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-bars {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-bar {
+            width: 8px;
+            height: 32px;
+            background: var(--pixel-cyan);
+            animation: loadingPulse 0.8s ease-in-out infinite;
+        }
+
+        .loading-bar:nth-child(2) { animation-delay: 0.1s; }
+        .loading-bar:nth-child(3) { animation-delay: 0.2s; }
+        .loading-bar:nth-child(4) { animation-delay: 0.3s; }
+        .loading-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .loading-text {
+            font-size: 20px;
+            color: var(--pixel-yellow);
+            animation: blink 0.5s infinite;
+        }
+
+        /* Results */
+        .result-panel {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result-panel.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-header.success {
+            background: linear-gradient(90deg, rgba(0, 255, 65, 0.2) 0%, transparent 100%);
+            border-left: 8px solid var(--pixel-green);
+        }
+
+        .result-header.error {
+            background: linear-gradient(90deg, rgba(255, 0, 64, 0.2) 0%, transparent 100%);
+            border-left: 8px solid var(--pixel-red);
+        }
+
+        .result-icon {
+            font-size: 32px;
+        }
+
+        .result-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+
+        .result-message {
+            font-size: 18px;
+            color: var(--pixel-gray);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--pixel-purple);
+            padding: 16px;
+            text-align: center;
+            border: 2px solid var(--pixel-blue);
+        }
+
+        .stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            color: var(--pixel-cyan);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--pixel-gray);
+            text-transform: uppercase;
+        }
+
+        /* Log Output */
+        .log-output {
+            background: var(--pixel-black);
+            border: 4px solid var(--pixel-blue);
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-line.info { color: var(--pixel-cyan); }
+        .log-line.success { color: var(--pixel-green); }
+        .log-line.warning { color: var(--pixel-yellow); }
+        .log-line.error { color: var(--pixel-red); }
+
+        .log-prefix {
+            color: var(--pixel-gray);
+        }
+
+        /* Health Status */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .health-card {
+            background: var(--pixel-purple);
+            padding: 20px;
+            border: 4px solid;
+            transition: all 0.2s;
+        }
+
+        .health-card.healthy {
+            border-color: var(--pixel-green);
+        }
+
+        .health-card.unhealthy {
+            border-color: var(--pixel-red);
+        }
+
+        .health-card-title {
+            font-size: 14px;
+            color: var(--pixel-gray);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .health-card-status {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .health-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 0;
+        }
+
+        .health-dot.on { background: var(--pixel-green); box-shadow: 0 0 10px var(--pixel-green); }
+        .health-dot.off { background: var(--pixel-red); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--pixel-gray);
+            font-size: 14px;
+            border-top: 4px solid var(--pixel-blue);
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: var(--pixel-cyan);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--pixel-dark);
+            border: 4px solid var(--pixel-purple);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--pixel-cyan);
+            border: 4px solid var(--pixel-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pixel-green);
+        }
+
+        /* Pixel Art Decorations */
+        .pixel-art {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo { font-size: 16px; }
+            .nav-tab { font-size: 8px; padding: 10px 14px; }
+            .panel { padding: 16px; }
+            .upload-zone { padding: 32px 16px; }
+            .btn { font-size: 10px; padding: 12px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1 class="logo">RDL-CORE</h1>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="convert">
+            ▶ Convert
+        </button>
+        <button class="nav-tab" data-tab="ocr">
+            🖼 OCR
+        </button>
+        <button class="nav-tab" data-tab="analyze">
+            ◆ Analyze
+        </button>
+        <button class="nav-tab" data-tab="validate">
+            ★ Validate
+        </button>
+        <button class="nav-tab" data-tab="health">
+            ♥ Health
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Convert Panel -->
+        <section id="panel-convert" class="panel pixel-border active">
+            <h2 class="panel-title">Document Conversion</h2>
+            
+            <div class="upload-zone" id="convert-upload-zone">
+                <span class="upload-icon">📄</span>
+                <p class="upload-text">Drop File Here</p>
+                <p class="upload-hint">.docx, .pdf, .png, .jpg, .bmp</p>
+                <input type="file" class="file-input" id="convert-file" accept=".docx,.pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif">
+            </div>
+
+            <div class="selected-file" id="convert-selected">
+                <span class="file-icon">📁</span>
+                <div class="file-info">
+                    <div class="file-name" id="convert-filename">-</div>
+                    <div class="file-size" id="convert-filesize">-</div>
+                </div>
+                <button class="remove-file" onclick="removeFile('convert')">✕ Remove</button>
+            </div>
+
+            <div class="options-grid">
+                <div class="option-group">
+                    <label class="option-label">DataSet Name</label>
+                    <input type="text" class="pixel-input" id="dataset-name" value="DefaultDataSet" placeholder="Enter dataset name...">
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Style Template</label>
+                    <input type="text" class="pixel-input" id="style-template" placeholder="Optional style template...">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="btn-convert" onclick="convertDocument()">
+                    ▶ Start Convert
+                </button>
+                <button class="btn btn-success" id="btn-download" onclick="downloadRdlc()" disabled>
+                    ↓ Download RDLC
+                </button>
+            </div>
+
+            <div class="loading" id="convert-loading">
+                <div class="loading-bars">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <span class="loading-text">Converting...</span>
+            </div>
+
+            <div class="result-panel" id="convert-result">
+                <div class="result-header" id="convert-result-header">
+                    <span class="result-icon" id="convert-result-icon">✓</span>
+                    <div>
+                        <div class="result-title" id="convert-result-title">Conversion Complete</div>
+                        <div class="result-message" id="convert-result-message">-</div>
+                    </div>
+                </div>
+                <div class="stats-grid" id="convert-stats"></div>
+                <div class="log-output" id="convert-log"></div>
+            </div>
+        </section>
+
+        <!-- OCR Panel -->
+        <section id="panel-ocr" class="panel pixel-border">
+            <h2 class="panel-title">Image OCR Recognition</h2>
+            
+            <div class="upload-zone" id="ocr-upload-zone">
+                <span class="upload-icon">🖼️</span>
+                <p class="upload-text">Drop Image Here</p>
+                <p class="upload-hint">.png, .jpg, .jpeg, .bmp, .tiff</p>
+                <input type="file" class="file-input" id="ocr-file" accept=".png,.jpg,.jpeg,.bmp,.tiff,.tif">
+            </div>
+
+            <div class="selected-file" id="ocr-selected">
+                <span class="file-icon">🖼️</span>
+                <div class="file-info">
+                    <div class="file-name" id="ocr-filename">-</div>
+                    <div class="file-size" id="ocr-filesize">-</div>
+                </div>
+                <button class="remove-file" onclick="removeFile('ocr')">✕ Remove</button>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="btn-ocr" onclick="recognizeImage()">
+                    🖼 Start OCR
+                </button>
+            </div>
+
+            <div class="loading" id="ocr-loading">
+                <div class="loading-bars">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <span class="loading-text">Recognizing...</span>
+            </div>
+
+            <div class="result-panel" id="ocr-result">
+                <div class="result-header" id="ocr-result-header">
+                    <span class="result-icon" id="ocr-result-icon">🖼️</span>
+                    <div>
+                        <div class="result-title" id="ocr-result-title">OCR Complete</div>
+                        <div class="result-message" id="ocr-result-message">-</div>
+                    </div>
+                </div>
+                <div class="stats-grid" id="ocr-stats"></div>
+                <div class="log-output" id="ocr-log" style="white-space: pre-wrap;"></div>
+            </div>
+        </section>
+
+        <!-- Analyze Panel -->
+        <section id="panel-analyze" class="panel pixel-border-green">
+            <h2 class="panel-title">Document Analysis</h2>
+            
+            <div class="upload-zone" id="analyze-upload-zone">
+                <span class="upload-icon">🔍</span>
+                <p class="upload-text">Drop File to Analyze</p>
+                <p class="upload-hint">Analyze structure and field codes</p>
+                <input type="file" class="file-input" id="analyze-file" accept=".docx,.pdf">
+            </div>
+
+            <div class="selected-file" id="analyze-selected">
+                <span class="file-icon">📁</span>
+                <div class="file-info">
+                    <div class="file-name" id="analyze-filename">-</div>
+                    <div class="file-size" id="analyze-filesize">-</div>
+                </div>
+                <button class="remove-file" onclick="removeFile('analyze')">✕ Remove</button>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-success" id="btn-analyze" onclick="analyzeDocument()">
+                    ◆ Start Analysis
+                </button>
+            </div>
+
+            <div class="loading" id="analyze-loading">
+                <div class="loading-bars">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <span class="loading-text">Analyzing...</span>
+            </div>
+
+            <div class="result-panel" id="analyze-result">
+                <div class="result-header" id="analyze-result-header">
+                    <span class="result-icon" id="analyze-result-icon">◆</span>
+                    <div>
+                        <div class="result-title" id="analyze-result-title">Analysis Complete</div>
+                        <div class="result-message" id="analyze-result-message">-</div>
+                    </div>
+                </div>
+                <div class="stats-grid" id="analyze-stats"></div>
+                <div class="log-output" id="analyze-log"></div>
+            </div>
+        </section>
+
+        <!-- Validate Panel -->
+        <section id="panel-validate" class="panel pixel-border-yellow">
+            <h2 class="panel-title">RDLC Validation</h2>
+            
+            <div class="upload-zone" id="validate-upload-zone">
+                <span class="upload-icon">✓</span>
+                <p class="upload-text">Drop RDLC File to Validate</p>
+                <p class="upload-hint">.rdlc, .rdl, .xml format</p>
+                <input type="file" class="file-input" id="validate-file" accept=".rdlc,.rdl,.xml">
+            </div>
+
+            <div class="selected-file" id="validate-selected">
+                <span class="file-icon">📄</span>
+                <div class="file-info">
+                    <div class="file-name" id="validate-filename">-</div>
+                    <div class="file-size" id="validate-filesize">-</div>
+                </div>
+                <button class="remove-file" onclick="removeFile('validate')">✕ Remove</button>
+            </div>
+
+            <div class="options-grid">
+                <div class="option-group">
+                    <label class="pixel-checkbox">
+                        <input type="checkbox" id="validate-expressions" checked>
+                        <span class="checkbox-box">✓</span>
+                        <span class="checkbox-label">Validate Expression Syntax</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-warning" id="btn-validate" onclick="validateRdlc()">
+                    ★ Start Validation
+                </button>
+            </div>
+
+            <div class="loading" id="validate-loading">
+                <div class="loading-bars">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <span class="loading-text">Validating...</span>
+            </div>
+
+            <div class="result-panel" id="validate-result">
+                <div class="result-header" id="validate-result-header">
+                    <span class="result-icon" id="validate-result-icon">★</span>
+                    <div>
+                        <div class="result-title" id="validate-result-title">Validation Complete</div>
+                        <div class="result-message" id="validate-result-message">-</div>
+                    </div>
+                </div>
+                <div class="stats-grid" id="validate-stats"></div>
+                <div class="log-output" id="validate-log"></div>
+            </div>
+        </section>
+
+        <!-- Health Panel -->
+        <section id="panel-health" class="panel pixel-border">
+            <h2 class="panel-title">System Health</h2>
+            
+            <div class="actions" style="margin-top: 0; margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="checkHealth()">
+                    ♥ Refresh Status
+                </button>
+            </div>
+
+            <div class="health-grid" id="health-grid">
+                <div class="health-card" id="health-loading">
+                    <div class="health-card-title">Loading...</div>
+                    <div class="health-card-status">
+                        <span class="loading-text">Please wait</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>RDL-CORE v1.0.0 | <a href="/swagger">API Docs</a></p>
+        <p style="margin-top: 8px; font-size: 12px;">PRESS START TO CONTINUE...</p>
+    </footer>
+
+    <script>
+        // API Base URL
+        const API_BASE = '';
+
+        // State
+        let selectedFiles = {
+            convert: null,
+            ocr: null,
+            analyze: null,
+            validate: null
+        };
+        let lastConvertResult = null;
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+            });
+        });
+
+        // Upload Zone Events
+        ['convert', 'ocr', 'analyze', 'validate'].forEach(type => {
+            const zone = document.getElementById(`${type}-upload-zone`);
+            const input = document.getElementById(`${type}-file`);
+
+            zone.addEventListener('click', () => input.click());
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelect(type, e.dataTransfer.files[0]);
+                }
+            });
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(type, e.target.files[0]);
+                }
+            });
+        });
+
+        function handleFileSelect(type, file) {
+            selectedFiles[type] = file;
+            const selected = document.getElementById(`${type}-selected`);
+            document.getElementById(`${type}-filename`).textContent = file.name;
+            document.getElementById(`${type}-filesize`).textContent = formatBytes(file.size);
+            selected.classList.add('show');
+        }
+
+        function removeFile(type) {
+            selectedFiles[type] = null;
+            document.getElementById(`${type}-file`).value = '';
+            document.getElementById(`${type}-selected`).classList.remove('show');
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Convert Document
+        async function convertDocument() {
+            const file = selectedFiles.convert;
+            if (!file) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            const loading = document.getElementById('convert-loading');
+            const result = document.getElementById('convert-result');
+            const btn = document.getElementById('btn-convert');
+            const downloadBtn = document.getElementById('btn-download');
+
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+            downloadBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const datasetName = document.getElementById('dataset-name').value || 'DefaultDataSet';
+                const styleTemplate = document.getElementById('style-template').value;
+
+                let url = `${API_BASE}/api/convert?dataSetName=${encodeURIComponent(datasetName)}`;
+                if (styleTemplate) {
+                    url += `&styleTemplate=${encodeURIComponent(styleTemplate)}`;
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                lastConvertResult = data;
+
+                showConvertResult(data);
+                downloadBtn.disabled = !data.success;
+            } catch (error) {
+                showConvertResult({
+                    success: false,
+                    message: 'Request failed: ' + error.message,
+                    errors: [error.message]
+                });
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
+            }
+        }
+
+        function showConvertResult(data) {
+            const result = document.getElementById('convert-result');
+            const header = document.getElementById('convert-result-header');
+            const icon = document.getElementById('convert-result-icon');
+            const title = document.getElementById('convert-result-title');
+            const message = document.getElementById('convert-result-message');
+            const stats = document.getElementById('convert-stats');
+            const log = document.getElementById('convert-log');
+
+            header.className = 'result-header ' + (data.success ? 'success' : 'error');
+            icon.textContent = data.success ? '✓' : '✕';
+            title.textContent = data.success ? 'Conversion Successful!' : 'Conversion Failed';
+            message.textContent = data.message;
+
+            // Stats
+            stats.innerHTML = '';
+            if (data.statistics) {
+                const statItems = [
+                    { label: 'TEXTBOX', value: data.statistics.textboxCount || 0 },
+                    { label: 'TABLE', value: data.statistics.tableCount || 0 },
+                    { label: 'IMAGE', value: data.statistics.imageCount || 0 },
+                    { label: 'EXPR', value: data.statistics.expressionCount || 0 }
+                ];
+                statItems.forEach(item => {
+                    stats.innerHTML += `
+                        <div class="stat-card">
+                            <div class="stat-value">${item.value}</div>
+                            <div class="stat-label">${item.label}</div>
+                        </div>
+                    `;
+                });
+            }
+            if (data.elapsedMilliseconds) {
+                stats.innerHTML += `
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(data.elapsedMilliseconds)}ms</div>
+                        <div class="stat-label">TIME</div>
+                    </div>
+                `;
+            }
+
+            // Log
+            log.innerHTML = '';
+            if (data.documentInfo) {
+                addLog(log, 'info', `File: ${data.documentInfo.fileName}`);
+                addLog(log, 'info', `Type: ${data.documentInfo.documentType}`);
+                addLog(log, 'info', `Size: ${formatBytes(data.documentInfo.fileSizeBytes)}`);
+            }
+            if (data.warnings?.length > 0) {
+                data.warnings.forEach(w => addLog(log, 'warning', w));
+            }
+            if (data.errors?.length > 0) {
+                data.errors.forEach(e => addLog(log, 'error', e));
+            }
+            if (data.success) {
+                addLog(log, 'success', 'RDLC file generated, click download button to get it');
+            }
+
+            result.classList.add('show');
+        }
+
+        // Download RDLC
+        async function downloadRdlc() {
+            const file = selectedFiles.convert;
+            if (!file) return;
+
+            const datasetName = document.getElementById('dataset-name').value || 'DefaultDataSet';
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/convert/download?dataSetName=${encodeURIComponent(datasetName)}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = 'output.rdlc';
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename=(.+)/);
+                        if (match) filename = match[1].replace(/"/g, '');
+                    }
+                    
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                } else {
+                    const data = await response.json();
+                    alert('Download failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        // Analyze Document
+        async function analyzeDocument() {
+            const file = selectedFiles.analyze;
+            if (!file) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            const loading = document.getElementById('analyze-loading');
+            const result = document.getElementById('analyze-result');
+            const btn = document.getElementById('btn-analyze');
+
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE}/api/convert/analyze`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                showAnalyzeResult(data);
+            } catch (error) {
+                showAnalyzeResult({
+                    success: false,
+                    message: 'Request failed: ' + error.message
+                });
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
+            }
+        }
+
+        function showAnalyzeResult(data) {
+            const result = document.getElementById('analyze-result');
+            const header = document.getElementById('analyze-result-header');
+            const icon = document.getElementById('analyze-result-icon');
+            const title = document.getElementById('analyze-result-title');
+            const message = document.getElementById('analyze-result-message');
+            const stats = document.getElementById('analyze-stats');
+            const log = document.getElementById('analyze-log');
+
+            header.className = 'result-header ' + (data.success ? 'success' : 'error');
+            icon.textContent = data.success ? '◆' : '✕';
+            title.textContent = data.success ? 'Analysis Complete!' : 'Analysis Failed';
+            message.textContent = data.message;
+
+            // Stats
+            stats.innerHTML = '';
+            if (data.documentInfo) {
+                stats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.documentInfo.pageCount || 0}</div>
+                        <div class="stat-label">PAGES</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.elements?.length || 0}</div>
+                        <div class="stat-label">ELEMENTS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.fieldCodes?.length || 0}</div>
+                        <div class="stat-label">FIELDS</div>
+                    </div>
+                `;
+            }
+
+            // Log
+            log.innerHTML = '';
+            if (data.documentInfo) {
+                addLog(log, 'info', `File: ${data.documentInfo.fileName}`);
+                addLog(log, 'info', `Type: ${data.documentInfo.documentType}`);
+            }
+            if (data.elements) {
+                const types = {};
+                data.elements.forEach(e => {
+                    types[e.elementType] = (types[e.elementType] || 0) + 1;
+                });
+                Object.entries(types).forEach(([type, count]) => {
+                    addLog(log, 'success', `Detected ${count} ${type}(s)`);
+                });
+            }
+            if (data.fieldCodes) {
+                data.fieldCodes.forEach(fc => {
+                    addLog(log, 'info', `Field: ${fc.originalContent}`);
+                    if (fc.translatedExpression) {
+                        addLog(log, 'success', `  → ${fc.translatedExpression}`);
+                    }
+                });
+            }
+
+            result.classList.add('show');
+        }
+
+        // Validate RDLC
+        async function validateRdlc() {
+            const file = selectedFiles.validate;
+            if (!file) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            const loading = document.getElementById('validate-loading');
+            const result = document.getElementById('validate-result');
+            const btn = document.getElementById('btn-validate');
+
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const validateExpressions = document.getElementById('validate-expressions').checked;
+                const response = await fetch(`${API_BASE}/api/validate?validateExpressions=${validateExpressions}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                showValidateResult(data);
+            } catch (error) {
+                showValidateResult({
+                    isValid: false,
+                    message: 'Request failed: ' + error.message,
+                    errors: [{ message: error.message }]
+                });
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
+            }
+        }
+
+        function showValidateResult(data) {
+            const result = document.getElementById('validate-result');
+            const header = document.getElementById('validate-result-header');
+            const icon = document.getElementById('validate-result-icon');
+            const title = document.getElementById('validate-result-title');
+            const message = document.getElementById('validate-result-message');
+            const stats = document.getElementById('validate-stats');
+            const log = document.getElementById('validate-log');
+
+            header.className = 'result-header ' + (data.isValid ? 'success' : 'error');
+            icon.textContent = data.isValid ? '★' : '✕';
+            title.textContent = data.isValid ? 'Validation Passed!' : 'Validation Failed';
+            message.textContent = data.message;
+
+            // Stats
+            stats.innerHTML = '';
+            if (data.schemaValidation) {
+                stats.innerHTML += `
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${data.schemaValidation.isValid ? 'var(--pixel-green)' : 'var(--pixel-red)'}">
+                            ${data.schemaValidation.isValid ? 'PASS' : 'FAIL'}
+                        </div>
+                        <div class="stat-label">SCHEMA</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.schemaValidation.errorCount || 0}</div>
+                        <div class="stat-label">ERRORS</div>
+                    </div>
+                `;
+            }
+            if (data.expressionValidation) {
+                stats.innerHTML += `
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${data.expressionValidation.allValid ? 'var(--pixel-green)' : 'var(--pixel-red)'}">
+                            ${data.expressionValidation.allValid ? 'PASS' : 'FAIL'}
+                        </div>
+                        <div class="stat-label">EXPR</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.expressionValidation.validExpressions}/${data.expressionValidation.totalExpressions}</div>
+                        <div class="stat-label">VALID</div>
+                    </div>
+                `;
+            }
+
+            // Log
+            log.innerHTML = '';
+            if (data.isValid) {
+                addLog(log, 'success', 'RDLC file complies with RDL 2016 specification');
+            }
+            if (data.warnings?.length > 0) {
+                data.warnings.forEach(w => addLog(log, 'warning', w));
+            }
+            if (data.errors?.length > 0) {
+                data.errors.forEach(e => {
+                    addLog(log, 'error', `[${e.errorType}] ${e.message}`);
+                    if (e.location) addLog(log, 'info', `  Location: ${e.location}`);
+                    if (e.suggestedFix) addLog(log, 'info', `  Suggestion: ${e.suggestedFix}`);
+                });
+            }
+
+            result.classList.add('show');
+        }
+
+        // Health Check
+        async function checkHealth() {
+            const grid = document.getElementById('health-grid');
+            grid.innerHTML = `
+                <div class="health-card" id="health-loading">
+                    <div class="health-card-title">Loading...</div>
+                    <div class="health-card-status">
+                        <span class="loading-text">Please wait</span>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                showHealthResult(data);
+            } catch (error) {
+                grid.innerHTML = `
+                    <div class="health-card unhealthy">
+                        <div class="health-card-title">Connection Failed</div>
+                        <div class="health-card-status">
+                            <div class="health-dot off"></div>
+                            <span style="color: var(--pixel-red)">OFFLINE</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function showHealthResult(data) {
+            const grid = document.getElementById('health-grid');
+            grid.innerHTML = `
+                <div class="health-card ${data.status === 'healthy' ? 'healthy' : 'unhealthy'}">
+                    <div class="health-card-title">Overall Status</div>
+                    <div class="health-card-status">
+                        <div class="health-dot ${data.status === 'healthy' ? 'on' : 'off'}"></div>
+                        <span style="color: ${data.status === 'healthy' ? 'var(--pixel-green)' : 'var(--pixel-red)'}">
+                            ${data.status.toUpperCase()}
+                        </span>
+                    </div>
+                </div>
+                <div class="health-card healthy">
+                    <div class="health-card-title">Version</div>
+                    <div class="health-card-status">
+                        <span style="color: var(--pixel-cyan)">${data.version}</span>
+                    </div>
+                </div>
+                <div class="health-card healthy">
+                    <div class="health-card-title">Uptime</div>
+                    <div class="health-card-status">
+                        <span style="color: var(--pixel-cyan)">${formatUptime(data.uptime)}</span>
+                    </div>
+                </div>
+            `;
+
+            if (data.services) {
+                Object.entries(data.services).forEach(([name, healthy]) => {
+                    grid.innerHTML += `
+                        <div class="health-card ${healthy ? 'healthy' : 'unhealthy'}">
+                            <div class="health-card-title">${name.replace('Service', '')}</div>
+                            <div class="health-card-status">
+                                <div class="health-dot ${healthy ? 'on' : 'off'}"></div>
+                                <span style="color: ${healthy ? 'var(--pixel-green)' : 'var(--pixel-red)'}">
+                                    ${healthy ? 'ONLINE' : 'OFFLINE'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function formatUptime(uptimeStr) {
+            // Parse TimeSpan string like "00:05:23.1234567"
+            const match = uptimeStr?.match(/(\d+):(\d+):(\d+)/);
+            if (match) {
+                const [, h, m, s] = match;
+                return `${parseInt(h)}h ${parseInt(m)}m ${parseInt(s)}s`;
+            }
+            return uptimeStr || '-';
+        }
+
+        function addLog(container, type, message) {
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            line.innerHTML = `<span class="log-prefix">[${type.toUpperCase()}]</span> ${escapeHtml(message)}`;
+            container.appendChild(line);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initial health check
+        checkHealth();
+
+        // OCR Recognition
+        async function recognizeImage() {
+            const file = selectedFiles.ocr;
+            if (!file) {
+                alert('Please select an image first!');
+                return;
+            }
+
+            const loading = document.getElementById('ocr-loading');
+            const result = document.getElementById('ocr-result');
+            const btn = document.getElementById('btn-ocr');
+
+            loading.classList.add('show');
+            result.classList.remove('show');
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE}/api/ocr`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                showOcrResult(data);
+            } catch (error) {
+                showOcrResult({
+                    success: false,
+                    message: 'Request failed: ' + error.message
+                });
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
+            }
+        }
+
+        function showOcrResult(data) {
+            const result = document.getElementById('ocr-result');
+            const header = document.getElementById('ocr-result-header');
+            const icon = document.getElementById('ocr-result-icon');
+            const title = document.getElementById('ocr-result-title');
+            const message = document.getElementById('ocr-result-message');
+            const stats = document.getElementById('ocr-stats');
+            const log = document.getElementById('ocr-log');
+
+            header.className = 'result-header ' + (data.success ? 'success' : 'error');
+            icon.textContent = data.success ? '🖼️' : '✕';
+            title.textContent = data.success ? 'OCR Recognition Complete!' : 'OCR Failed';
+            message.textContent = data.message;
+
+            // Stats
+            stats.innerHTML = '';
+            if (data.success) {
+                stats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.textBlocks?.length || 0}</div>
+                        <div class="stat-label">TEXT BLOCKS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.confidence ? (data.confidence * 100).toFixed(1) + '%' : '-'}</div>
+                        <div class="stat-label">CONFIDENCE</div>
+                    </div>
+                `;
+            }
+
+            // Log - show recognized text
+            log.innerHTML = '';
+            if (data.text) {
+                log.textContent = data.text;
+            } else if (data.success) {
+                log.textContent = '(No text detected)';
+            }
+
+            result.classList.add('show');
+        }
+    </script>
+</body>
+</html>

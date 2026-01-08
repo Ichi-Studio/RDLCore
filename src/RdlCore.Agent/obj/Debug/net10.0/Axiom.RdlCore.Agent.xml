@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Axiom.RdlCore.Agent</name>
+    </assembly>
+    <members>
+        <member name="T:Axiom.RdlCore.Agent.ConversionPipeline">
+            <summary>
+            Executes the five-phase conversion pipeline
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ConversionPipeline.ExecuteAsync(Axiom.RdlCore.Abstractions.Models.ConversionRequest,System.IProgress{Axiom.RdlCore.Abstractions.Models.PipelineProgress},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Axiom.RdlCore.Agent.HumanInterventionHandler">
+            <summary>
+            Handles human intervention requests during conversion
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.HumanInterventionHandler.RequestInterventionAsync(Axiom.RdlCore.Abstractions.Models.InterventionRequest,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.HumanInterventionHandler.CreateComplexLogicRequest(System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates an intervention request for complex logic
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.HumanInterventionHandler.CreateAmbiguousLayoutRequest(System.String,System.String,System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,System.String,System.String}})">
+            <summary>
+            Creates an intervention request for ambiguous layout
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.HumanInterventionHandler.CreateLowOcrConfidenceRequest(System.String,System.String,System.Double)">
+            <summary>
+            Creates an intervention request for low OCR confidence
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.HumanInterventionHandler.CreateUnsupportedFeatureRequest(System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates an intervention request for unsupported features
+            </summary>
+        </member>
+        <member name="T:Axiom.RdlCore.Agent.ProgressReporter">
+            <summary>
+            Reports pipeline progress
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ProgressReporter.ReportPhaseStart(Axiom.RdlCore.Abstractions.Enums.PipelinePhase,System.IProgress{Axiom.RdlCore.Abstractions.Models.PipelineProgress},System.Collections.Generic.IReadOnlyList{Axiom.RdlCore.Abstractions.Models.PhaseResult})">
+            <summary>
+            Reports the start of a pipeline phase
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ProgressReporter.ReportPhaseComplete(Axiom.RdlCore.Abstractions.Enums.PipelinePhase,System.IProgress{Axiom.RdlCore.Abstractions.Models.PipelineProgress},System.Collections.Generic.IReadOnlyList{Axiom.RdlCore.Abstractions.Models.PhaseResult},System.String)">
+            <summary>
+            Reports the completion of a pipeline phase
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ProgressReporter.ReportError(Axiom.RdlCore.Abstractions.Enums.PipelinePhase,System.IProgress{Axiom.RdlCore.Abstractions.Models.PipelineProgress},System.Collections.Generic.IReadOnlyList{Axiom.RdlCore.Abstractions.Models.PhaseResult},System.String)">
+            <summary>
+            Reports a pipeline error
+            </summary>
+        </member>
+        <member name="T:Axiom.RdlCore.Agent.ServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering agent services
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ServiceCollectionExtensions.AddRdlCoreAgent(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds agent orchestration services
+            </summary>
+        </member>
+        <member name="M:Axiom.RdlCore.Agent.ServiceCollectionExtensions.AddRdlCoreAgent(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Axiom.RdlCore.Abstractions.Models.InterventionRequest,System.Threading.Tasks.Task{Axiom.RdlCore.Abstractions.Models.InterventionResponse}})">
+            <summary>
+            Adds agent services with custom intervention callback
+            </summary>
+        </member>
+    </members>
+</doc>

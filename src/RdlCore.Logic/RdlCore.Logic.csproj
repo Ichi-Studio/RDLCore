@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RdlCore.Logic</RootNamespace>
+    <AssemblyName>RdlCore.Logic</AssemblyName>
+    <PackageId>RdlCore.Logic</PackageId>
+    <Description>Logic extraction and expression translation module</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RdlCore.Abstractions\RdlCore.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

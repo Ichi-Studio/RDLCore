@@ -1,0 +1,15 @@
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.csproj.AssemblyReference.cache
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.AssemblyInfoInputs.cache
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.AssemblyInfo.cs
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.csproj.CoreCompileInputs.cache
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.sourcelink.json
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\bin\Debug\net10.0\Axiom.RdlCore.Abstractions.deps.json
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\bin\Debug\net10.0\Axiom.RdlCore.Abstractions.dll
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\bin\Debug\net10.0\Axiom.RdlCore.Abstractions.pdb
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\bin\Debug\net10.0\Axiom.RdlCore.Abstractions.xml
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.dll
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\refint\Axiom.RdlCore.Abstractions.dll
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.xml
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\Axiom.RdlCore.Abstractions.pdb
+C:\MyDemo\HelloQoder\RDLCore\src\Axiom.RdlCore.Abstractions\obj\Debug\net10.0\ref\Axiom.RdlCore.Abstractions.dll

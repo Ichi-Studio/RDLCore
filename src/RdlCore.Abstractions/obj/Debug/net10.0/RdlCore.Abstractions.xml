@@ -1,0 +1,1290 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RdlCore.Abstractions</name>
+    </assembly>
+    <members>
+        <member name="T:RdlCore.Abstractions.Enums.DocumentType">
+            <summary>
+            Represents the type of source document
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.DocumentType.Unknown">
+            <summary>Unknown document type</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.DocumentType.Word">
+            <summary>Microsoft Word document (.docx)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.DocumentType.Pdf">
+            <summary>PDF document (.pdf)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.DocumentType.Rtf">
+            <summary>Rich Text Format (.rtf)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.DocumentType.Image">
+            <summary>Image file (.png, .jpg, .jpeg, .bmp, .tiff) - requires OCR</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.LogicalRole">
+            <summary>
+            Represents the logical role of an element in a document
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Unknown">
+            <summary>Unknown role</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Header">
+            <summary>Document header</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Footer">
+            <summary>Document footer</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Title">
+            <summary>Document title</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Body">
+            <summary>Body content</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Table">
+            <summary>Table element</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Paragraph">
+            <summary>Paragraph text</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Image">
+            <summary>Image element</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.Chart">
+            <summary>Chart element</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.PageNumber">
+            <summary>Page number placeholder</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.TotalPages">
+            <summary>Total pages placeholder</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.LogicalRole.DateTime">
+            <summary>Date/time placeholder</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.FieldCodeType">
+            <summary>
+            Represents the type of field code in Word documents
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Unknown">
+            <summary>Unknown field type</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.MergeField">
+            <summary>MERGEFIELD - Data binding field</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.If">
+            <summary>IF - Conditional field</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Date">
+            <summary>DATE - Date field</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Page">
+            <summary>PAGE - Current page number</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.NumPages">
+            <summary>NUMPAGES - Total pages</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Time">
+            <summary>TIME - Current time</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Formula">
+            <summary>FORMULA - Calculation formula</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Sequence">
+            <summary>SEQ - Sequence number</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.TableOfContents">
+            <summary>TOC - Table of contents</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.FieldCodeType.Hyperlink">
+            <summary>HYPERLINK - Hyperlink field</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.OperatorType">
+            <summary>
+            Represents operator types in expressions
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Equals">
+            <summary>Equals (=)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.NotEquals">
+            <summary>Not equals (not equal)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.GreaterThan">
+            <summary>Greater than</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.LessThan">
+            <summary>Less than</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.GreaterThanOrEquals">
+            <summary>Greater than or equals</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.LessThanOrEquals">
+            <summary>Less than or equals</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.And">
+            <summary>Logical AND</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Or">
+            <summary>Logical OR</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Not">
+            <summary>Logical NOT</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Add">
+            <summary>Addition (+)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Subtract">
+            <summary>Subtraction (-)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Multiply">
+            <summary>Multiplication (*)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Divide">
+            <summary>Division (/)</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.OperatorType.Modulo">
+            <summary>Modulo (%)</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.InterventionType">
+            <summary>
+            Represents the type of intervention required
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.ComplexLogicReview">
+            <summary>Complex logic requires manual review</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.AmbiguousLayout">
+            <summary>Layout recognition ambiguity</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.LowOcrConfidence">
+            <summary>Low OCR confidence</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.UnsupportedFeature">
+            <summary>Unsupported source document feature</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.ExpressionValidation">
+            <summary>Expression validation failed</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.InterventionType.VisualMismatch">
+            <summary>Visual comparison difference too large</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.ConfidenceLevel">
+            <summary>
+            Represents confidence levels
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConfidenceLevel.VeryLow">
+            <summary>Very low confidence</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConfidenceLevel.Low">
+            <summary>Low confidence</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConfidenceLevel.Medium">
+            <summary>Medium confidence</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConfidenceLevel.High">
+            <summary>High confidence</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConfidenceLevel.VeryHigh">
+            <summary>Very high confidence</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.ConversionStatus">
+            <summary>
+            Represents the status of a conversion process
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.NotStarted">
+            <summary>Not started</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.InProgress">
+            <summary>In progress</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.Completed">
+            <summary>Completed successfully</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.CompletedWithWarnings">
+            <summary>Completed with warnings</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.Failed">
+            <summary>Failed</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.Cancelled">
+            <summary>Cancelled</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ConversionStatus.RequiresIntervention">
+            <summary>Requires intervention</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.PipelinePhase">
+            <summary>
+            Represents the pipeline phase
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.PipelinePhase.Perception">
+            <summary>Perception phase - Document analysis</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.PipelinePhase.Decomposition">
+            <summary>Decomposition phase - Logic extraction</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.PipelinePhase.Synthesis">
+            <summary>Synthesis phase - Schema generation</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.PipelinePhase.Translation">
+            <summary>Translation phase - Expression conversion</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.PipelinePhase.Validation">
+            <summary>Validation phase - Final verification</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.ValidationSeverity">
+            <summary>
+            Represents validation severity levels
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ValidationSeverity.Info">
+            <summary>Informational message</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ValidationSeverity.Warning">
+            <summary>Warning - may affect output</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.ValidationSeverity.Error">
+            <summary>Error - critical issue</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.AggregateType">
+            <summary>
+            Represents aggregate function types
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Sum">
+            <summary>Sum of values</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Average">
+            <summary>Average of values</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Count">
+            <summary>Count of items</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Min">
+            <summary>Minimum value</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Max">
+            <summary>Maximum value</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.First">
+            <summary>First value</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AggregateType.Last">
+            <summary>Last value</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Enums.AstNodeType">
+            <summary>
+            Represents AST node types
+            </summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.Literal">
+            <summary>Literal value</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.FieldReference">
+            <summary>Field reference</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.ParameterReference">
+            <summary>Parameter reference</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.GlobalReference">
+            <summary>Global variable reference</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.BinaryOperation">
+            <summary>Binary operation</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.UnaryOperation">
+            <summary>Unary operation</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.FunctionCall">
+            <summary>Function call</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.Conditional">
+            <summary>Conditional expression</summary>
+        </member>
+        <member name="F:RdlCore.Abstractions.Enums.AstNodeType.Aggregate">
+            <summary>Aggregate function</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.RdlCoreException">
+            <summary>
+            Base exception for RDL Core operations
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.RdlCoreException.#ctor(System.String,System.Exception)">
+            <summary>
+            Base exception for RDL Core operations
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.SchemaValidationException">
+            <summary>
+            Exception thrown when schema validation fails
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.SchemaValidationException.#ctor(System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ValidationMessage})">
+            <summary>
+            Exception thrown when schema validation fails
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.SchemaValidationException.ValidationErrors">
+            <summary>
+            The validation errors
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.ExpressionSyntaxException">
+            <summary>
+            Exception thrown when expression syntax is invalid
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.ExpressionSyntaxException.#ctor(System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Exception thrown when expression syntax is invalid
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.ExpressionSyntaxException.Expression">
+            <summary>
+            The invalid expression
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.ExpressionSyntaxException.Position">
+            <summary>
+            The position of the error
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.UnsupportedFieldCodeException">
+            <summary>
+            Exception thrown when a field code is not supported
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.UnsupportedFieldCodeException.#ctor(RdlCore.Abstractions.Enums.FieldCodeType,System.String)">
+            <summary>
+            Exception thrown when a field code is not supported
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.UnsupportedFieldCodeException.FieldCodeType">
+            <summary>
+            The field code type
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.UnsupportedFieldCodeException.RawFieldCode">
+            <summary>
+            The raw field code
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.LayoutRecognitionException">
+            <summary>
+            Exception thrown when layout recognition fails
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.LayoutRecognitionException.#ctor(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Exception thrown when layout recognition fails
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.LayoutRecognitionException.PageNumber">
+            <summary>
+            The page number where the error occurred
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.OcrConfidenceLowException">
+            <summary>
+            Exception thrown when OCR confidence is too low
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.OcrConfidenceLowException.#ctor(System.Double,System.Double,System.String)">
+            <summary>
+            Exception thrown when OCR confidence is too low
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.OcrConfidenceLowException.Confidence">
+            <summary>
+            The confidence score
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.OcrConfidenceLowException.Threshold">
+            <summary>
+            The minimum required confidence
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.OcrConfidenceLowException.RecognizedText">
+            <summary>
+            The recognized text
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.DocumentParsingException">
+            <summary>
+            Exception thrown when document parsing fails
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.DocumentParsingException.DocumentType">
+            <summary>
+            The document type
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.DocumentParsingException.#ctor(System.String,RdlCore.Abstractions.Enums.DocumentType)">
+            <summary>
+            Creates a new DocumentParsingException
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.DocumentParsingException.#ctor(System.String,RdlCore.Abstractions.Enums.DocumentType,System.Exception)">
+            <summary>
+            Creates a new DocumentParsingException with inner exception
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.PipelineExecutionException">
+            <summary>
+            Exception thrown when pipeline execution fails
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.PipelineExecutionException.Phase">
+            <summary>
+            The phase where the failure occurred
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.PipelineExecutionException.#ctor(System.String,RdlCore.Abstractions.Enums.PipelinePhase)">
+            <summary>
+            Creates a new PipelineExecutionException
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.PipelineExecutionException.#ctor(System.String,RdlCore.Abstractions.Enums.PipelinePhase,System.Exception)">
+            <summary>
+            Creates a new PipelineExecutionException with inner exception
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Exceptions.SandboxViolationException">
+            <summary>
+            Exception thrown when sandbox security is violated
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Exceptions.SandboxViolationException.#ctor(System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Exception thrown when sandbox security is violated
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.SandboxViolationException.Expression">
+            <summary>
+            The expression that violated security
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Exceptions.SandboxViolationException.ViolatedRules">
+            <summary>
+            The violated rules
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IDocumentPerceptionService">
+            <summary>
+            Service for document perception - Phase 1 of the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IDocumentPerceptionService.AnalyzeAsync(System.IO.Stream,RdlCore.Abstractions.Enums.DocumentType,System.Threading.CancellationToken)">
+            <summary>
+            Analyzes a document stream and extracts its structure
+            </summary>
+            <param name="documentStream">The document stream to analyze</param>
+            <param name="type">The document type</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The document structure model</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IDocumentPerceptionService.IdentifyLogicalRolesAsync(RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <summary>
+            Identifies logical roles of elements in the document
+            </summary>
+            <param name="model">The document structure model</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The identified logical elements</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IDocumentPerceptionService.ExtractLayoutAsync(RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <summary>
+            Extracts layout information from the document
+            </summary>
+            <param name="model">The document structure model</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The bounding boxes of elements</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.ILogicDecompositionService">
+            <summary>
+            Service for logic decomposition - Phase 2 of the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicDecompositionService.ExtractFieldCodesAsync(RdlCore.Abstractions.Models.DocumentStructureModel,System.Threading.CancellationToken)">
+            <summary>
+            Extracts field codes from the document structure
+            </summary>
+            <param name="model">The document structure model</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The logic extraction result</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicDecompositionService.BuildAstAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Builds an Abstract Syntax Tree from an expression
+            </summary>
+            <param name="expression">The expression to parse</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The parsed AST</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicDecompositionService.IdentifyConditionsAsync(RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <summary>
+            Identifies conditional branches in the logic
+            </summary>
+            <param name="result">The logic extraction result</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The identified conditional branches</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService">
+            <summary>
+            Service for schema synthesis - Phase 3 of the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService.GenerateRdlDocumentAsync(RdlCore.Abstractions.Models.DocumentStructureModel,RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <summary>
+            Generates an RDL document from the document structure and logic
+            </summary>
+            <param name="documentStructure">The document structure model</param>
+            <param name="logic">The logic extraction result</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The generated RDL document</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService.GenerateMultipleRdlDocumentsAsync(RdlCore.Abstractions.Models.DocumentStructureModel,RdlCore.Abstractions.Models.LogicExtractionResult,System.Threading.CancellationToken)">
+            <summary>
+            Generates multiple RDL documents, one for each page/section in the source document
+            </summary>
+            <param name="documentStructure">The document structure model</param>
+            <param name="logic">The logic extraction result</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>List of RDL document info objects</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService.CreateTablixAsync(RdlCore.Abstractions.Models.TableStructure,RdlCore.Abstractions.Models.DataSetBinding,System.Threading.CancellationToken)">
+            <summary>
+            Creates a Tablix element for a table
+            </summary>
+            <param name="table">The table structure</param>
+            <param name="binding">The dataset binding</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The Tablix XML element</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService.CreateTextboxAsync(RdlCore.Abstractions.Models.ParagraphElement,System.Threading.CancellationToken)">
+            <summary>
+            Creates a Textbox element for a paragraph
+            </summary>
+            <param name="paragraph">The paragraph element</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The Textbox XML element</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ISchemaSynthesisService.ValidateAgainstSchemaAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <summary>
+            Validates the RDL document against the schema
+            </summary>
+            <param name="rdlDocument">The RDL document to validate</param>
+            <param name="cancellationToken">Cancellation token</param>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.ILogicTranslationService">
+            <summary>
+            Service for logic translation - Phase 4 of the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicTranslationService.TranslateToVbExpressionAsync(RdlCore.Abstractions.Models.AbstractSyntaxTree,System.Threading.CancellationToken)">
+            <summary>
+            Translates an AST to a VB expression
+            </summary>
+            <param name="ast">The AST to translate</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The VB expression string</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicTranslationService.ValidateExpressionAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Validates an expression
+            </summary>
+            <param name="expression">The expression to validate</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The validation result</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.ILogicTranslationService.OptimizeExpressionAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Optimizes an expression
+            </summary>
+            <param name="expression">The expression to optimize</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The optimized expression</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IValidationService">
+            <summary>
+            Service for validation - Phase 5 of the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IValidationService.ValidateSchemaAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <summary>
+            Validates the RDL document schema
+            </summary>
+            <param name="rdlDocument">The RDL document to validate</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The schema validation result</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IValidationService.ValidateExpressionsAsync(System.Xml.Linq.XDocument,System.Threading.CancellationToken)">
+            <summary>
+            Validates all expressions in the RDL document
+            </summary>
+            <param name="rdlDocument">The RDL document to validate</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The expression validation result</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IValidationService.CompareVisualsAsync(System.Byte[],System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Compares the visual output of the source and rendered documents
+            </summary>
+            <param name="sourceImage">The source document image</param>
+            <param name="renderedImage">The rendered report image</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The visual comparison result</returns>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IValidationService.RenderToPdfAsync(System.Xml.Linq.XDocument,System.Data.DataSet,System.Threading.CancellationToken)">
+            <summary>
+            Renders the RDL document to PDF
+            </summary>
+            <param name="rdlDocument">The RDL document to render</param>
+            <param name="dataSet">The data set to use</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The rendered PDF bytes</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IConversionPipelineService">
+            <summary>
+            Service for orchestrating the conversion pipeline
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IConversionPipelineService.ExecuteAsync(RdlCore.Abstractions.Models.ConversionRequest,System.IProgress{RdlCore.Abstractions.Models.PipelineProgress},System.Threading.CancellationToken)">
+            <summary>
+            Executes the full conversion pipeline
+            </summary>
+            <param name="request">The conversion request</param>
+            <param name="progress">Progress reporter</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The conversion result</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IHumanInterventionHandler">
+            <summary>
+            Service for handling human intervention requests
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IHumanInterventionHandler.RequestInterventionAsync(RdlCore.Abstractions.Models.InterventionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Requests human intervention
+            </summary>
+            <param name="request">The intervention request</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The intervention response</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IDocumentParser">
+            <summary>
+            Interface for document parsers
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Interfaces.IDocumentParser.SupportedType">
+            <summary>
+            Gets the supported document type
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IDocumentParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Parses a document stream
+            </summary>
+            <param name="stream">The document stream</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>The document structure model</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Interfaces.IPageAnalyzer">
+            <summary>
+            Interface for async page analysis
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Interfaces.IPageAnalyzer.AnalyzePagesAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Analyzes pages asynchronously using async streams
+            </summary>
+            <param name="documentStream">The document stream</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>Async enumerable of page analysis results</returns>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ConversionRequest">
+            <summary>
+            Represents a conversion request
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConversionRequest.#ctor(System.IO.Stream,System.Nullable{RdlCore.Abstractions.Enums.DocumentType},System.String,RdlCore.Abstractions.Models.ConversionOptions)">
+            <summary>
+            Represents a conversion request
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ConversionOptions">
+            <summary>
+            Conversion options
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConversionOptions.#ctor(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.String,System.Double)">
+            <summary>
+            Conversion options
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ConversionResult">
+            <summary>
+            Represents the result of a conversion
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConversionResult.#ctor(RdlCore.Abstractions.Enums.ConversionStatus,System.Xml.Linq.XDocument,System.String,RdlCore.Abstractions.Models.ConversionSummary,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ValidationMessage},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.InterventionRequest},System.TimeSpan,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.RdlDocumentInfo})">
+            <summary>
+            Represents the result of a conversion
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConversionResult.GetAllDocuments">
+            <summary>
+            Gets all RDL documents (main + additional)
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.RdlDocumentInfo">
+            <summary>
+            Information about an individual RDL document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.RdlDocumentInfo.#ctor(System.String,System.Xml.Linq.XDocument,System.Int32)">
+            <summary>
+            Information about an individual RDL document
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ConversionSummary">
+            <summary>
+            Summary of conversion results
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConversionSummary.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Summary of conversion results
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.InterventionRequest">
+            <summary>
+            Represents a request for human intervention
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.InterventionRequest.#ctor(RdlCore.Abstractions.Enums.InterventionType,System.String,System.String,System.String,RdlCore.Abstractions.Enums.ConfidenceLevel,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.InterventionOption})">
+            <summary>
+            Represents a request for human intervention
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.InterventionOption">
+            <summary>
+            Represents an intervention option
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.InterventionOption.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Represents an intervention option
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.InterventionResponse">
+            <summary>
+            Represents intervention response
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.InterventionResponse.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Represents intervention response
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.SchemaValidationResult">
+            <summary>
+            Represents schema validation result
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.SchemaValidationResult.#ctor(System.Boolean,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ValidationMessage},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ValidationMessage})">
+            <summary>
+            Represents schema validation result
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.VisualComparisonResult">
+            <summary>
+            Represents visual comparison result
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.VisualComparisonResult.#ctor(System.Boolean,System.Double,System.Double,System.Byte[],System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.DifferenceRegion})">
+            <summary>
+            Represents visual comparison result
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.DifferenceRegion">
+            <summary>
+            Represents a region of visual difference
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.DifferenceRegion.#ctor(RdlCore.Abstractions.Models.BoundingBox,System.Double,System.String)">
+            <summary>
+            Represents a region of visual difference
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.PipelineProgress">
+            <summary>
+            Represents pipeline progress
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.PipelineProgress.#ctor(RdlCore.Abstractions.Enums.PipelinePhase,System.Int32,System.Double,System.String,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.PhaseResult})">
+            <summary>
+            Represents pipeline progress
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.PhaseResult">
+            <summary>
+            Represents the result of a pipeline phase
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.PhaseResult.#ctor(RdlCore.Abstractions.Enums.PipelinePhase,System.Boolean,System.TimeSpan,System.String)">
+            <summary>
+            Represents the result of a pipeline phase
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.AxiomRdlCoreOptions">
+            <summary>
+            Configuration options for the RDL Core system
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.AxiomRdlCoreOptions.Parsing">
+            <summary>Parsing options</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.AxiomRdlCoreOptions.Generation">
+            <summary>Generation options</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.AxiomRdlCoreOptions.Validation">
+            <summary>Validation options</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ParsingOptions">
+            <summary>
+            Parsing configuration options
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ParsingOptions.MaxPageCount">
+            <summary>Maximum number of pages to process</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ParsingOptions.OcrEnabled">
+            <summary>Enable OCR for image-based PDFs</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ParsingOptions.OcrLanguages">
+            <summary>OCR languages</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ParsingOptions.OcrConfidenceThreshold">
+            <summary>Minimum OCR confidence threshold</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.GenerationOptions">
+            <summary>
+            Generation configuration options
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.GenerationOptions.DefaultPageWidth">
+            <summary>Default page width</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.GenerationOptions.DefaultPageHeight">
+            <summary>Default page height</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.GenerationOptions.DefaultMargins">
+            <summary>Default margins</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.GenerationOptions.EmbedImages">
+            <summary>Embed images in report</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.GenerationOptions.MaxImageResolution">
+            <summary>Maximum image resolution (DPI)</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.MarginOptions">
+            <summary>
+            Margin configuration
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.MarginOptions.Top">
+            <summary>Top margin</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.MarginOptions.Bottom">
+            <summary>Bottom margin</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.MarginOptions.Left">
+            <summary>Left margin</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.MarginOptions.Right">
+            <summary>Right margin</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ValidationOptions">
+            <summary>
+            Validation configuration options
+            </summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ValidationOptions.StrictSchemaValidation">
+            <summary>Enable strict schema validation</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ValidationOptions.ExpressionSandboxMode">
+            <summary>Enable expression sandbox mode</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.ValidationOptions.VisualComparisonThreshold">
+            <summary>Visual comparison threshold (SSIM)</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.DataSetBinding">
+            <summary>
+            Represents data set binding information
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.DataSetBinding.#ctor(System.String,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.DataFieldInfo})">
+            <summary>
+            Represents data set binding information
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.DataFieldInfo">
+            <summary>
+            Represents information about a data field
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.DataFieldInfo.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Represents information about a data field
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TableStructure">
+            <summary>
+            Represents table structure for RDLC generation
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TableStructure.#ctor(System.String,System.Int32,System.Int32,System.Collections.Generic.IReadOnlyList{System.Double},System.Collections.Generic.IReadOnlyList{System.Double},System.Boolean,System.Boolean,System.String)">
+            <summary>
+            Represents table structure for RDLC generation
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.DocumentStructureModel">
+            <summary>
+            Represents the structure of a parsed document
+            </summary>
+            <param name="Type">The document type</param>
+            <param name="Pages">The list of page elements</param>
+            <param name="LogicalElements">The list of logical elements</param>
+            <param name="Metadata">Document metadata</param>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.DocumentStructureModel.#ctor(RdlCore.Abstractions.Enums.DocumentType,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.PageElement},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.LogicalElement},RdlCore.Abstractions.Models.DocumentMetadata)">
+            <summary>
+            Represents the structure of a parsed document
+            </summary>
+            <param name="Type">The document type</param>
+            <param name="Pages">The list of page elements</param>
+            <param name="LogicalElements">The list of logical elements</param>
+            <param name="Metadata">Document metadata</param>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.DocumentStructureModel.Type">
+            <summary>The document type</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.DocumentStructureModel.Pages">
+            <summary>The list of page elements</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.DocumentStructureModel.LogicalElements">
+            <summary>The list of logical elements</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.DocumentStructureModel.Metadata">
+            <summary>Document metadata</summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.DocumentMetadata">
+            <summary>
+            Represents document metadata
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.DocumentMetadata.#ctor(System.String,System.String,System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Int32,System.String)">
+            <summary>
+            Represents document metadata
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.PageElement">
+            <summary>
+            Represents a page element in the document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.PageElement.#ctor(System.Int32,System.Double,System.Double,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ContentElement})">
+            <summary>
+            Represents a page element in the document
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ContentElement">
+            <summary>
+            Base class for content elements
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ContentElement.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Int32)">
+            <summary>
+            Base class for content elements
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.BoundingBox">
+            <summary>
+            Represents a bounding box for layout positioning
+            </summary>
+            <param name="Left">Left position in points</param>
+            <param name="Top">Top position in points</param>
+            <param name="Width">Width in points</param>
+            <param name="Height">Height in points</param>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.BoundingBox.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Represents a bounding box for layout positioning
+            </summary>
+            <param name="Left">Left position in points</param>
+            <param name="Top">Top position in points</param>
+            <param name="Width">Width in points</param>
+            <param name="Height">Height in points</param>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Left">
+            <summary>Left position in points</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Top">
+            <summary>Top position in points</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Width">
+            <summary>Width in points</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Height">
+            <summary>Height in points</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Right">
+            <summary>Right edge position</summary>
+        </member>
+        <member name="P:RdlCore.Abstractions.Models.BoundingBox.Bottom">
+            <summary>Bottom edge position</summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.BoundingBox.ToInches">
+            <summary>
+            Converts points to inches (72 points = 1 inch)
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.LogicalElement">
+            <summary>
+            Represents a logical element in the document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.LogicalElement.#ctor(System.String,RdlCore.Abstractions.Enums.LogicalRole,RdlCore.Abstractions.Models.BoundingBox,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Represents a logical element in the document
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TextElement">
+            <summary>
+            Represents a text element
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TextElement.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Int32,System.String,RdlCore.Abstractions.Models.TextStyle)">
+            <summary>
+            Represents a text element
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TextStyle">
+            <summary>
+            Represents text styling
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TextStyle.#ctor(System.String,System.Double,System.Boolean,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String)">
+            <summary>
+            Represents text styling
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TableElement">
+            <summary>
+            Represents a table element
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TableElement.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Int32,System.Int32,System.Int32,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.TableRow})">
+            <summary>
+            Represents a table element
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TableRow">
+            <summary>
+            Represents a table row
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TableRow.#ctor(System.Int32,System.Double,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.TableCell})">
+            <summary>
+            Represents a table row
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TableCell">
+            <summary>
+            Represents a table cell
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TableCell.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Double,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ContentElement},RdlCore.Abstractions.Models.TableCellStyle)">
+            <summary>
+            Represents a table cell
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TableCellStyle">
+            <summary>
+            Represents table cell styling
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TableCellStyle.#ctor(System.String,RdlCore.Abstractions.Models.BorderStyle,RdlCore.Abstractions.Models.BorderStyle,RdlCore.Abstractions.Models.BorderStyle,RdlCore.Abstractions.Models.BorderStyle,System.String,RdlCore.Abstractions.Models.PaddingStyle)">
+            <summary>
+            Represents table cell styling
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.BorderStyle">
+            <summary>
+            Represents border styling
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.BorderStyle.#ctor(System.String,System.Double,System.String)">
+            <summary>
+            Represents border styling
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.PaddingStyle">
+            <summary>
+            Represents padding
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.PaddingStyle.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Represents padding
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ImageElement">
+            <summary>
+            Represents an image element
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ImageElement.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Int32,System.Byte[],System.String,System.String)">
+            <summary>
+            Represents an image element
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ParagraphElement">
+            <summary>
+            Represents a paragraph element
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ParagraphElement.#ctor(System.String,RdlCore.Abstractions.Models.BoundingBox,System.Int32,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.TextRun},RdlCore.Abstractions.Models.ParagraphStyle)">
+            <summary>
+            Represents a paragraph element
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.TextRun">
+            <summary>
+            Represents a text run within a paragraph
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.TextRun.#ctor(System.String,RdlCore.Abstractions.Models.TextStyle,RdlCore.Abstractions.Models.FieldCode)">
+            <summary>
+            Represents a text run within a paragraph
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ParagraphStyle">
+            <summary>
+            Represents paragraph styling
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ParagraphStyle.#ctor(System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Double},System.String)">
+            <summary>
+            Represents paragraph styling
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.FieldCode">
+            <summary>
+            Represents a field code extracted from a document
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.FieldCode.#ctor(System.String,RdlCore.Abstractions.Enums.FieldCodeType,System.String,System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.FieldCode})">
+            <summary>
+            Represents a field code extracted from a document
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.LogicExtractionResult">
+            <summary>
+            Represents the result of logic extraction
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.LogicExtractionResult.#ctor(System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.FieldCode},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ConditionalBranch},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.CalculationFormula},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Represents the result of logic extraction
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ConditionalBranch">
+            <summary>
+            Represents a conditional branch in the logic
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ConditionalBranch.#ctor(System.String,RdlCore.Abstractions.Models.AbstractSyntaxTree,RdlCore.Abstractions.Models.AbstractSyntaxTree,RdlCore.Abstractions.Models.AbstractSyntaxTree,System.String)">
+            <summary>
+            Represents a conditional branch in the logic
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.CalculationFormula">
+            <summary>
+            Represents a calculation formula
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.CalculationFormula.#ctor(System.String,System.String,RdlCore.Abstractions.Models.AbstractSyntaxTree,System.String)">
+            <summary>
+            Represents a calculation formula
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.AbstractSyntaxTree">
+            <summary>
+            Represents an Abstract Syntax Tree node
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.AbstractSyntaxTree.#ctor(RdlCore.Abstractions.Enums.AstNodeType,System.Object,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.AbstractSyntaxTree},System.String,RdlCore.Abstractions.Models.AstNodeMetadata)">
+            <summary>
+            Represents an Abstract Syntax Tree node
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.AstNodeMetadata">
+            <summary>
+            Metadata for AST nodes
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.AstNodeMetadata.#ctor(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
+            <summary>
+            Metadata for AST nodes
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ValidatedExpression">
+            <summary>
+            Represents a validated expression ready for RDLC
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ValidatedExpression.#ctor(System.String,System.Boolean,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Represents a validated expression ready for RDLC
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ExpressionValidationResult">
+            <summary>
+            Represents the result of expression validation
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ExpressionValidationResult.#ctor(System.Boolean,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ValidationMessage},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Represents the result of expression validation
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.ValidationMessage">
+            <summary>
+            Represents a validation message
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.ValidationMessage.#ctor(RdlCore.Abstractions.Enums.ValidationSeverity,System.String,System.String,System.String)">
+            <summary>
+            Represents a validation message
+            </summary>
+        </member>
+        <member name="T:RdlCore.Abstractions.Models.PageAnalysisResult">
+            <summary>
+            Represents page analysis result
+            </summary>
+        </member>
+        <member name="M:RdlCore.Abstractions.Models.PageAnalysisResult.#ctor(System.Int32,System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.ContentElement},System.Collections.Generic.IReadOnlyList{RdlCore.Abstractions.Models.LogicalElement},System.Double)">
+            <summary>
+            Represents page analysis result
+            </summary>
+        </member>
+    </members>
+</doc>

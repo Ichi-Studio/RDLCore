@@ -1,0 +1,755 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "RDL-Core API",
+    "description": "**RDL-Core** - 智能报表转换引擎 API\r\n\r\n将 Word/PDF 文档转换为 RDLC 报表定义文件。\r\n\r\n## 主要功能\r\n\r\n- **文档转换** - 上传 .docx 或 .pdf 文件，自动转换为 .rdlc 格式\r\n- **文档分析** - 分析文档结构，提取字段代码和逻辑表达式\r\n- **RDLC 验证** - 验证 RDLC 文件的 Schema 合规性和表达式正确性\r\n\r\n## 支持的格式\r\n\r\n| 输入格式 | 说明 |\r\n|----------|------|\r\n| .docx | Microsoft Word 文档 (OpenXML) |\r\n| .pdf | PDF 文档 |\r\n\r\n| 输出格式 | 说明 |\r\n|----------|------|\r\n| .rdlc | Report Definition Language Client (RDL 2016) |\r\n\r\n## 表达式转换\r\n\r\n支持将 Word 字段代码自动转换为 RDL VBScript 表达式：\r\n\r\n- `{ MERGEFIELD CustomerName }` → `=Fields!CustomerName.Value`\r\n- `{ IF ... }` → `=IIf(...)`\r\n- `{ PAGE }` → `=Globals!PageNumber`",
+    "contact": {
+      "name": "Axiom RDL-Core Team",
+      "email": "support@axiom-RdlCore.dev"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Convert": {
+      "post": {
+        "tags": [
+          "Convert"
+        ],
+        "summary": "将 Word/PDF 文档转换为 RDLC 报表定义",
+        "parameters": [
+          {
+            "name": "DataSetName",
+            "in": "query",
+            "description": "数据集名称",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "StyleTemplate",
+            "in": "query",
+            "description": "样式模板（可选）",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Verbose",
+            "in": "query",
+            "description": "是否详细输出",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "文件 (.docx 或 .pdf)",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Convert/analyze": {
+      "post": {
+        "tags": [
+          "Convert"
+        ],
+        "summary": "分析文档结构（不生成 RDLC）",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "文件 (.docx 或 .pdf)",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Convert/download": {
+      "post": {
+        "tags": [
+          "Convert"
+        ],
+        "summary": "下载转换后的 RDLC 文件",
+        "parameters": [
+          {
+            "name": "dataSetName",
+            "in": "query",
+            "description": "数据集名称",
+            "schema": {
+              "type": "string",
+              "default": "DefaultDataSet"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "文件 (.docx 或 .pdf)",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "获取服务健康状态",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "简单存活检查",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "就绪检查",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/Validate": {
+      "post": {
+        "tags": [
+          "Validate"
+        ],
+        "summary": "验证 RDLC 文件的有效性",
+        "parameters": [
+          {
+            "name": "ValidateExpressions",
+            "in": "query",
+            "description": "是否验证表达式",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "StrictMode",
+            "in": "query",
+            "description": "是否严格模式",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "文件 (.docx 或 .pdf)",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Validate/content": {
+      "post": {
+        "tags": [
+          "Validate"
+        ],
+        "summary": "验证 RDLC 内容（以文本形式提交）",
+        "parameters": [
+          {
+            "name": "validateExpressions",
+            "in": "query",
+            "description": "是否验证表达式",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "RDLC XML 内容",
+          "content": {
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息",
+            "nullable": true
+          },
+          "documentInfo": {
+            "$ref": "#/components/schemas/DocumentInfo"
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectedElement"
+            },
+            "description": "检测到的元素列表",
+            "nullable": true
+          },
+          "fieldCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectedFieldCode"
+            },
+            "description": "检测到的字段代码",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "文档分析响应"
+      },
+      "BoundingBoxInfo": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          },
+          "width": {
+            "type": "number",
+            "format": "double"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "边界框信息"
+      },
+      "ConversionStatistics": {
+        "type": "object",
+        "properties": {
+          "textboxCount": {
+            "type": "integer",
+            "description": "文本框数量",
+            "format": "int32"
+          },
+          "tableCount": {
+            "type": "integer",
+            "description": "表格数量",
+            "format": "int32"
+          },
+          "imageCount": {
+            "type": "integer",
+            "description": "图片数量",
+            "format": "int32"
+          },
+          "expressionCount": {
+            "type": "integer",
+            "description": "表达式数量",
+            "format": "int32"
+          },
+          "fieldCodeCount": {
+            "type": "integer",
+            "description": "字段代码数量",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "转换统计信息"
+      },
+      "ConvertResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "是否成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息",
+            "nullable": true
+          },
+          "elapsedMilliseconds": {
+            "type": "number",
+            "description": "转换耗时（毫秒）",
+            "format": "double"
+          },
+          "documentInfo": {
+            "$ref": "#/components/schemas/DocumentInfo"
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/ConversionStatistics"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "错误列表",
+            "nullable": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "警告列表",
+            "nullable": true
+          },
+          "rdlcContentBase64": {
+            "type": "string",
+            "description": "生成的 RDLC 内容（Base64 编码）",
+            "nullable": true
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "下载链接（如果保存到服务器）",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "转换响应"
+      },
+      "DetectedElement": {
+        "type": "object",
+        "properties": {
+          "elementType": {
+            "type": "string",
+            "description": "元素类型",
+            "nullable": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "页码",
+            "format": "int32"
+          },
+          "boundingBox": {
+            "$ref": "#/components/schemas/BoundingBoxInfo"
+          }
+        },
+        "additionalProperties": false,
+        "description": "检测到的元素"
+      },
+      "DetectedFieldCode": {
+        "type": "object",
+        "properties": {
+          "fieldType": {
+            "type": "string",
+            "description": "字段类型",
+            "nullable": true
+          },
+          "originalContent": {
+            "type": "string",
+            "description": "原始内容",
+            "nullable": true
+          },
+          "translatedExpression": {
+            "type": "string",
+            "description": "转换后的表达式",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "检测到的字段代码"
+      },
+      "DocumentInfo": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "description": "文件名",
+            "nullable": true
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "description": "文件大小（字节）",
+            "format": "int64"
+          },
+          "documentType": {
+            "type": "string",
+            "description": "检测到的文档类型",
+            "nullable": true
+          },
+          "pageCount": {
+            "type": "integer",
+            "description": "页数",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "文档信息"
+      },
+      "ExpressionValidationInfo": {
+        "type": "object",
+        "properties": {
+          "allValid": {
+            "type": "boolean",
+            "description": "是否全部有效"
+          },
+          "totalExpressions": {
+            "type": "integer",
+            "description": "表达式总数",
+            "format": "int32"
+          },
+          "validExpressions": {
+            "type": "integer",
+            "description": "有效表达式数量",
+            "format": "int32"
+          },
+          "invalidExpressions": {
+            "type": "integer",
+            "description": "无效表达式数量",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "表达式验证信息"
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "状态",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "description": "版本",
+            "nullable": true
+          },
+          "uptime": {
+            "type": "string",
+            "description": "运行时间",
+            "format": "date-span"
+          },
+          "services": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "服务状态",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "健康检查响应"
+      },
+      "SchemaValidationInfo": {
+        "type": "object",
+        "properties": {
+          "isValid": {
+            "type": "boolean",
+            "description": "是否有效"
+          },
+          "errorCount": {
+            "type": "integer",
+            "description": "错误数量",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Schema 验证信息"
+      },
+      "ValidateResponse": {
+        "type": "object",
+        "properties": {
+          "isValid": {
+            "type": "boolean",
+            "description": "是否有效"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息",
+            "nullable": true
+          },
+          "schemaValidation": {
+            "$ref": "#/components/schemas/SchemaValidationInfo"
+          },
+          "expressionValidation": {
+            "$ref": "#/components/schemas/ExpressionValidationInfo"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "description": "错误列表",
+            "nullable": true
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "警告列表",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "验证响应"
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "errorType": {
+            "type": "string",
+            "description": "错误类型",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "错误消息",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "description": "位置信息",
+            "nullable": true
+          },
+          "suggestedFix": {
+            "type": "string",
+            "description": "建议修复方案",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "验证错误"
+      }
+    }
+  }
+}

@@ -699,9 +699,6 @@
         <button class="nav-tab active" data-tab="convert">
             ▶ Convert
         </button>
-        <button class="nav-tab" data-tab="ocr">
-            🖼 OCR
-        </button>
         <button class="nav-tab" data-tab="analyze">
             ◆ Analyze
         </button>
@@ -722,8 +719,8 @@
             <div class="upload-zone" id="convert-upload-zone">
                 <span class="upload-icon">📄</span>
                 <p class="upload-text">Drop File Here</p>
-                <p class="upload-hint">.docx, .pdf, .png, .jpg, .bmp</p>
-                <input type="file" class="file-input" id="convert-file" accept=".docx,.pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif">
+                <p class="upload-hint">.docx or .pdf format</p>
+                <input type="file" class="file-input" id="convert-file" accept=".docx,.pdf">
             </div>
 
             <div class="selected-file" id="convert-selected">
@@ -776,56 +773,6 @@
                 </div>
                 <div class="stats-grid" id="convert-stats"></div>
                 <div class="log-output" id="convert-log"></div>
-            </div>
-        </section>
-
-        <!-- OCR Panel -->
-        <section id="panel-ocr" class="panel pixel-border">
-            <h2 class="panel-title">Image OCR Recognition</h2>
-            
-            <div class="upload-zone" id="ocr-upload-zone">
-                <span class="upload-icon">🖼️</span>
-                <p class="upload-text">Drop Image Here</p>
-                <p class="upload-hint">.png, .jpg, .jpeg, .bmp, .tiff</p>
-                <input type="file" class="file-input" id="ocr-file" accept=".png,.jpg,.jpeg,.bmp,.tiff,.tif">
-            </div>
-
-            <div class="selected-file" id="ocr-selected">
-                <span class="file-icon">🖼️</span>
-                <div class="file-info">
-                    <div class="file-name" id="ocr-filename">-</div>
-                    <div class="file-size" id="ocr-filesize">-</div>
-                </div>
-                <button class="remove-file" onclick="removeFile('ocr')">✕ Remove</button>
-            </div>
-
-            <div class="actions">
-                <button class="btn btn-primary" id="btn-ocr" onclick="recognizeImage()">
-                    🖼 Start OCR
-                </button>
-            </div>
-
-            <div class="loading" id="ocr-loading">
-                <div class="loading-bars">
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                </div>
-                <span class="loading-text">Recognizing...</span>
-            </div>
-
-            <div class="result-panel" id="ocr-result">
-                <div class="result-header" id="ocr-result-header">
-                    <span class="result-icon" id="ocr-result-icon">🖼️</span>
-                    <div>
-                        <div class="result-title" id="ocr-result-title">OCR Complete</div>
-                        <div class="result-message" id="ocr-result-message">-</div>
-                    </div>
-                </div>
-                <div class="stats-grid" id="ocr-stats"></div>
-                <div class="log-output" id="ocr-log" style="white-space: pre-wrap;"></div>
             </div>
         </section>
 
@@ -973,7 +920,6 @@
         // State
         let selectedFiles = {
             convert: null,
-            ocr: null,
             analyze: null,
             validate: null
         };
@@ -990,7 +936,7 @@
         });
 
         // Upload Zone Events
-        ['convert', 'ocr', 'analyze', 'validate'].forEach(type => {
+        ['convert', 'analyze', 'validate'].forEach(type => {
             const zone = document.getElementById(`${type}-upload-zone`);
             const input = document.getElementById(`${type}-file`);
 
@@ -1489,84 +1435,6 @@
 
         // Initial health check
         checkHealth();
-
-        // OCR Recognition
-        async function recognizeImage() {
-            const file = selectedFiles.ocr;
-            if (!file) {
-                alert('Please select an image first!');
-                return;
-            }
-
-            const loading = document.getElementById('ocr-loading');
-            const result = document.getElementById('ocr-result');
-            const btn = document.getElementById('btn-ocr');
-
-            loading.classList.add('show');
-            result.classList.remove('show');
-            btn.disabled = true;
-
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const response = await fetch(`${API_BASE}/api/ocr`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                showOcrResult(data);
-            } catch (error) {
-                showOcrResult({
-                    success: false,
-                    message: 'Request failed: ' + error.message
-                });
-            } finally {
-                loading.classList.remove('show');
-                btn.disabled = false;
-            }
-        }
-
-        function showOcrResult(data) {
-            const result = document.getElementById('ocr-result');
-            const header = document.getElementById('ocr-result-header');
-            const icon = document.getElementById('ocr-result-icon');
-            const title = document.getElementById('ocr-result-title');
-            const message = document.getElementById('ocr-result-message');
-            const stats = document.getElementById('ocr-stats');
-            const log = document.getElementById('ocr-log');
-
-            header.className = 'result-header ' + (data.success ? 'success' : 'error');
-            icon.textContent = data.success ? '🖼️' : '✕';
-            title.textContent = data.success ? 'OCR Recognition Complete!' : 'OCR Failed';
-            message.textContent = data.message;
-
-            // Stats
-            stats.innerHTML = '';
-            if (data.success) {
-                stats.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-value">${data.textBlocks?.length || 0}</div>
-                        <div class="stat-label">TEXT BLOCKS</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${data.confidence ? (data.confidence * 100).toFixed(1) + '%' : '-'}</div>
-                        <div class="stat-label">CONFIDENCE</div>
-                    </div>
-                `;
-            }
-
-            // Log - show recognized text
-            log.innerHTML = '';
-            if (data.text) {
-                log.textContent = data.text;
-            } else if (data.success) {
-                log.textContent = '(No text detected)';
-            }
-
-            result.classList.add('show');
-        }
     </script>
 </body>
 </html>

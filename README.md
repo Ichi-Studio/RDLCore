@@ -4,11 +4,11 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com//rdl-core)
 
-**RDL Modernization Architect** - 将遗留文档（PDF/Word）转换为现代 RDLC 报表定义的智能转换引擎。
+**RDL Modernization Architect** - 将文档模板（PDF/Word）转换为现代 RDLC 报表定义的智能转换引擎。
 
 ## 概述
 
- RDL-Core 是一个专注于报表现代化的 .NET 10 解决方案，能够从传统 PDF 和 Word 文档中提取视觉元素和嵌入逻辑，并将其转换为符合 RDL 2016 规范的 RDLC 报表定义文件。
+RDL-Core 是一个专注于报表现代化的 .NET 10 解决方案，能够从 PDF 和 Word 文档模板中提取视觉元素和嵌入逻辑，并将其转换为符合 RDL 2016 规范的 RDLC 报表定义文件。
 
 ### 核心能力
 

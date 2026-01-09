@@ -155,4 +155,3 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 
-** RDL-Core Team** | Version 1.0.0

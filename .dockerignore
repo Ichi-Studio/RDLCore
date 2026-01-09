@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE/Editor
+.idea/
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# NuGet
+*.nupkg
+**/packages/
+
+# Test results
+**/TestResults/
+**/coverage/
+*.trx
+
+# Logs
+*.log
+logs/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+*.md
+!src/**/wwwroot/**/*.md
+
+# Samples and tests (not needed in production image)
+samples/
+tests/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.tmp
+*.temp
+*.bak

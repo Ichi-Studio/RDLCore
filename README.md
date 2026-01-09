@@ -2,7 +2,7 @@
 
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com//rdl-core)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/Ichi-Studio/RDLCore)
 
 **RDL Modernization Architect** - 将文档模板（PDF/Word）转换为现代 RDLC 报表定义的智能转换引擎。
 
@@ -60,8 +60,8 @@ RdlCore/
 
 ```bash
 # 克隆仓库
-git clone https://github.com//rdl-core.git
-cd rdl-core
+git clone https://github.com/Ichi-Studio/RDLCore.git
+cd RDLCore
 
 # 还原依赖
 dotnet restore

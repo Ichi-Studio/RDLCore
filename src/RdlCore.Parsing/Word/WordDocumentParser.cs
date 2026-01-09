@@ -303,22 +303,58 @@ public class WordDocumentParser : IDocumentParser
         
         // Check for identifying text patterns that indicate separate forms
         // IMPORTANT: Check "非單一" patterns FIRST to avoid false matches (since "單一" is a substring of "非單一")
+        // The patterns are ordered from most specific to least specific
         var formIdentifiers = new[]
         {
-            // "非單一" patterns MUST come first
+            // "非單一" patterns MUST come first (繁體中文)
+            ("非單一判給建議書涉及單一判給實體的情況", "非單一判給表格"),
             ("非單一判給建議書涉及單一判給實體", "非單一判給表格"),
             ("非單一判給建議書涉及", "非單一判給表格"),
             ("非單一判給建議書", "非單一判給表格"),
-            ("非单一判给建议书涉及单一判给实体", "非单一判给表格"),
-            // Then "單一" patterns
+            // "非单一" patterns (简体中文)
+            ("非单一判给建议书涉及单一判给实体的情况", "非單一判給表格"),
+            ("非单一判给建议书涉及单一判给实体", "非單一判給表格"),
+            ("非单一判给建议书", "非單一判給表格"),
+            // Then "單一" patterns (繁體中文) - must come after 非單一
+            ("單一判給建議書涉及單一判給實體的情況", "單一判給表格"),
             ("單一判給建議書涉及單一判給實體", "單一判給表格"),
             ("單一判給建議書涉及單一判給", "單一判給表格"),
             ("單一判給建議書", "單一判給表格"),
-            ("单一判给建议书涉及单一判给实体", "单一判给表格"),
+            // "单一" patterns (简体中文)
+            ("单一判给建议书涉及单一判给实体的情况", "單一判給表格"),
+            ("单一判给建议书涉及单一判给实体", "單一判給表格"),
+            ("单一判给建议书", "單一判給表格"),
         };
         
-        // Group tables by their form type
+        // First pass: scan entire document to find all form type markers
+        var documentText = GetElementText(body);
+        var detectedFormTypes = new HashSet<string>();
+        
+        foreach (var (identifier, formName) in formIdentifiers)
+        {
+            if (documentText.Contains(identifier) && !detectedFormTypes.Contains(formName))
+            {
+                detectedFormTypes.Add(formName);
+                _logger.LogInformation("Document contains form type: '{FormName}' (matched pattern: '{Pattern}')", formName, identifier);
+            }
+        }
+        
+        _logger.LogInformation("Total distinct form types detected in document: {Count}", detectedFormTypes.Count);
+        
+        // If less than 2 form types detected, no parallel forms
+        if (detectedFormTypes.Count < 2)
+        {
+            return sections;
+        }
+        
+        // Group tables by their form type - now scan element by element
         var formGroups = new Dictionary<string, List<(OpenXmlElement Element, int Index)>>();
+        
+        // Initialize groups for all detected form types
+        foreach (var formType in detectedFormTypes)
+        {
+            formGroups[formType] = new List<(OpenXmlElement, int)>();
+        }
         
         var elementIndex = 0;
         foreach (var element in body.ChildElements)
@@ -326,62 +362,68 @@ public class WordDocumentParser : IDocumentParser
             // Get ALL text from element, including nested content (tables, cells, etc.)
             var text = GetElementText(element);
             
+            // Try to match each form identifier
+            string? matchedForm = null;
             foreach (var (identifier, formName) in formIdentifiers)
             {
                 if (text.Contains(identifier))
                 {
-                    _logger.LogInformation("Found form identifier '{FormName}' in element {Index}", formName, elementIndex);
-                    
-                    if (!formGroups.TryGetValue(formName, out var group))
-                    {
-                        group = new List<(OpenXmlElement, int)>();
-                        formGroups[formName] = group;
-                    }
-                    group.Add((element, elementIndex));
+                    matchedForm = formName;
+                    _logger.LogDebug("Found form identifier '{FormName}' in element {Index} (pattern: '{Pattern}')", formName, elementIndex, identifier);
                     break;
                 }
+            }
+            
+            if (matchedForm != null && formGroups.TryGetValue(matchedForm, out var matchedGroup))
+            {
+                matchedGroup.Add((element, elementIndex));
             }
             
             elementIndex++;
         }
         
-        _logger.LogInformation("Found {Count} distinct form groups", formGroups.Count);
-        
-        // If we found multiple form groups, separate them
-        if (formGroups.Count >= 2)
+        // Log results
+        foreach (var (formName, elements) in formGroups)
         {
-            // Assign each element to the nearest form group
-            var allElements = body.ChildElements.ToList();
-            var elementAssignments = new string?[allElements.Count];
-            
-            // Mark identified elements
-            foreach (var (formName, elements) in formGroups)
+            _logger.LogInformation("Form group '{FormName}' has {Count} anchor elements", formName, elements.Count);
+        }
+        
+        // Now we know we have multiple form types, assign elements
+        var allElements = body.ChildElements.ToList();
+        var elementAssignments = new string?[allElements.Count];
+        
+        // Mark identified elements
+        foreach (var (formName, elements) in formGroups)
+        {
+            foreach (var (element, index) in elements)
             {
-                foreach (var (element, index) in elements)
+                elementAssignments[index] = formName;
+            }
+        }
+        
+        // Assign remaining elements based on content similarity or proximity
+        AssignRemainingElementsToForms(allElements, elementAssignments, formGroups.Keys.ToList());
+        
+        // Group elements by form - ensure "單一" comes before "非單一" in output order
+        var orderedFormNames = formGroups.Keys
+            .OrderBy(k => k.Contains('非') ? 1 : 0) // "單一" first, "非單一" second
+            .ToList();
+        
+        foreach (var formName in orderedFormNames)
+        {
+            var formElements = new List<OpenXmlElement>();
+            for (int i = 0; i < allElements.Count; i++)
+            {
+                if (elementAssignments[i] == formName)
                 {
-                    elementAssignments[index] = formName;
+                    formElements.Add(allElements[i]);
                 }
             }
             
-            // Assign remaining elements based on content similarity or proximity
-            AssignRemainingElementsToForms(allElements, elementAssignments, formGroups.Keys.ToList());
-            
-            // Group elements by form
-            foreach (var formName in formGroups.Keys.OrderBy(k => k.Contains("單一") || k.Contains("单一") ? 0 : 1))
+            if (formElements.Count > 0)
             {
-                var formElements = new List<OpenXmlElement>();
-                for (int i = 0; i < allElements.Count; i++)
-                {
-                    if (elementAssignments[i] == formName)
-                    {
-                        formElements.Add(allElements[i]);
-                    }
-                }
-                
-                if (formElements.Count > 0)
-                {
-                    sections.Add(new ParallelFormSection(formName, formElements));
-                }
+                sections.Add(new ParallelFormSection(formName, formElements));
+                _logger.LogInformation("Created parallel section '{FormName}' with {Count} elements", formName, formElements.Count);
             }
         }
         
@@ -396,56 +438,139 @@ public class WordDocumentParser : IDocumentParser
         string?[] assignments, 
         List<string> formNames)
     {
-        // Strategy: Analyze table column structure to distinguish forms
-        // 单一判给表 typically has simpler structure (fewer columns)
-        // 非单一判给表 typically has multi-column grid (more columns)
+        // Strategy: Use position-based assignment with page-end markers
+        // Each form section ends with "部門主管" and starts with "日期"
         
+        var singleForm = formNames.FirstOrDefault(f => (f.Contains("單一") || f.Contains("单一")) && !f.Contains('非'));
+        var nonSingleForm = formNames.FirstOrDefault(f => f.Contains('非'));
+        
+        if (singleForm == null || nonSingleForm == null)
+        {
+            _logger.LogWarning("Could not identify both form types. Single: {Single}, NonSingle: {NonSingle}", singleForm, nonSingleForm);
+            return;
+        }
+        
+        // Find the ORIGINAL anchor indices (marked during detection phase)
+        int firstSingleAnchorIndex = -1;
+        int firstNonSingleAnchorIndex = -1;
+        for (int i = 0; i < assignments.Length; i++)
+        {
+            if (assignments[i] == singleForm && firstSingleAnchorIndex == -1)
+            {
+                firstSingleAnchorIndex = i;
+            }
+            if (assignments[i] == nonSingleForm && firstNonSingleAnchorIndex == -1)
+            {
+                firstNonSingleAnchorIndex = i;
+            }
+        }
+        
+        _logger.LogDebug("First single anchor index: {SingleIndex}, First non-single anchor index: {NonSingleIndex}, total elements: {Total}", 
+            firstSingleAnchorIndex, firstNonSingleAnchorIndex, allElements.Count);
+        
+        // Find page-end markers ("部門主管") to determine form boundaries
+        var pageEndIndices = new List<int>();
         for (int i = 0; i < allElements.Count; i++)
+        {
+            var text = GetElementText(allElements[i]);
+            if (text.Contains("部門主管") || text.Contains("部门主管"))
+            {
+                pageEndIndices.Add(i);
+                _logger.LogDebug("Found page-end marker at index {Index}", i);
+            }
+        }
+        
+        // Determine section boundary
+        int sectionBoundary;
+        
+        if (pageEndIndices.Count >= 1 && firstNonSingleAnchorIndex >= 0)
+        {
+            // Find the page-end marker that is before the non-single anchor but closest to it
+            // This marks the end of the single form section
+            var pageEndBeforeNonSingle = pageEndIndices
+                .Where(idx => idx < firstNonSingleAnchorIndex)
+                .OrderByDescending(idx => idx)
+                .FirstOrDefault(-1);
+            
+            if (pageEndBeforeNonSingle >= 0)
+            {
+                // The non-single form starts right after the page-end marker
+                sectionBoundary = pageEndBeforeNonSingle + 1;
+                _logger.LogInformation("Section boundary set after page-end marker at index {Index}", sectionBoundary);
+            }
+            else
+            {
+                // No page-end marker found before non-single anchor, use anchor position
+                // But look back for "日期" to find the actual start
+                sectionBoundary = FindSectionStartFromAnchor(allElements, firstNonSingleAnchorIndex, firstSingleAnchorIndex);
+            }
+        }
+        else if (firstNonSingleAnchorIndex >= 0)
+        {
+            // No page-end markers, use traditional approach
+            sectionBoundary = FindSectionStartFromAnchor(allElements, firstNonSingleAnchorIndex, firstSingleAnchorIndex);
+        }
+        else
+        {
+            // No non-single anchor found, assign all to single form
+            for (int i = 0; i < assignments.Length; i++)
+            {
+                assignments[i] ??= singleForm;
+            }
+            return;
+        }
+        
+        _logger.LogInformation("Final section boundary at index: {Index}", sectionBoundary);
+        
+        // Assign all elements based on section boundary
+        for (int i = 0; i < assignments.Length; i++)
         {
             if (assignments[i] != null) continue;
             
-            var element = allElements[i];
-            
-            // For tables, analyze column count
-            if (element is Table table)
+            if (i >= sectionBoundary)
             {
-                var colCount = CountTableColumns(table);
-                var text = GetElementText(element);
-                
-                // Non-single form typically has 5+ columns for multi-entity data
-                if (colCount >= 5 || text.Contains("判給:") || text.Contains("UTM/ PIDDA"))
-                {
-                    // Likely 非单一判给
-                    assignments[i] = formNames.FirstOrDefault(f => f.Contains('非'));
-                }
-                else
-                {
-                    // Likely 单一判给
-                    assignments[i] = formNames.FirstOrDefault(f => !f.Contains('非'));
-                }
+                assignments[i] = nonSingleForm;
             }
-            else if (element is Paragraph para)
+            else
             {
-                var text = GetElementText(para);
-                
-                // Assign based on nearby content hints
-                if (text.Contains("單一") || text.Contains("单一"))
-                {
-                    assignments[i] = formNames.FirstOrDefault(f => f.Contains("單一") || f.Contains("单一"));
-                }
-                else if (text.Contains("非單一") || text.Contains("非单一"))
-                {
-                    assignments[i] = formNames.FirstOrDefault(f => f.Contains('非'));
-                }
+                assignments[i] = singleForm;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Finds the start of a section by looking backwards from an anchor for header patterns
+    /// </summary>
+    private int FindSectionStartFromAnchor(List<OpenXmlElement> allElements, int anchorIndex, int minBoundary)
+    {
+        int sectionBoundary = anchorIndex;
+        int effectiveMinBoundary = minBoundary >= 0 ? minBoundary + 1 : 0;
+        
+        // Look backwards from anchor to find the section start (typically "日期")
+        // But stop if we hit a page-end marker
+        for (int i = anchorIndex - 1; i >= effectiveMinBoundary; i--)
+        {
+            var text = GetElementText(allElements[i]);
+            
+            // Stop at page-end markers
+            if (text.Contains("部門主管") || text.Contains("部门主管"))
+            {
+                sectionBoundary = i + 1;
+                _logger.LogDebug("Stopped at page-end marker, boundary at {Index}", sectionBoundary);
+                break;
+            }
+            
+            // Update boundary if we find header patterns
+            if ((text.Contains("日期") && text.Trim().Length < 30) ||
+                (text.Contains('致') && text.Contains(':') && text.Trim().Length < 50) ||
+                (text.Contains('由') && text.Contains(':') && text.Trim().Length < 50))
+            {
+                sectionBoundary = i;
+                _logger.LogDebug("Found header pattern at index {Index}: {Text}", i, text.Substring(0, Math.Min(30, text.Length)));
             }
         }
         
-        // Fill any remaining gaps with the default form
-        var defaultForm = formNames.FirstOrDefault(f => f.Contains("單一") || f.Contains("单一"));
-        for (int i = 0; i < assignments.Length; i++)
-        {
-            assignments[i] ??= defaultForm;
-        }
+        return sectionBoundary;
     }
 
     /// <summary>

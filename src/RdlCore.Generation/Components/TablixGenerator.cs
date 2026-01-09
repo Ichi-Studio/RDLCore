@@ -195,14 +195,89 @@ public class TablixGenerator
         // Use unique name with tablixId to avoid conflicts across multiple Tablix
         var uniqueName = $"Tablix{tablixId}_Cell_{cell.RowIndex}_{cell.ColumnIndex}";
         
+        // Determine text alignment based on content and cell style
+        var textAlign = DetermineTextAlignment(content, cell);
+        
         return RdlNamespaces.RdlElement("TablixCell",
             RdlNamespaces.RdlElement("CellContents",
-                _textboxGenerator.CreateSimpleTextbox(
+                CreateStyledTextbox(
                     uniqueName,
                     content,
-                    0, 0, cell.Width / 72.0, 0.25,
-                    includePosition: false)  // No position/size in TablixCell
+                    cell.Width / 72.0,
+                    textAlign,
+                    cell.Style)
             )
+        );
+    }
+    
+    /// <summary>
+    /// Determines the text alignment based on content and cell style
+    /// </summary>
+    private string? DetermineTextAlignment(string content, TableCell cell)
+    {
+        // First, check if the cell has an explicit alignment from the original document
+        if (cell.Style?.VerticalAlignment != null)
+        {
+            // Check if any paragraph inside has explicit alignment
+            foreach (var element in cell.Content)
+            {
+                if (element is ParagraphElement para && para.Style?.Alignment != null)
+                {
+                    return para.Style.Alignment;
+                }
+            }
+        }
+        
+        // Special handling for date-related content - should be right-aligned
+        var trimmedContent = content.Trim();
+        if (trimmedContent.Contains("日期") && !trimmedContent.Contains('(') && trimmedContent.Length < 20)
+        {
+            _logger.LogDebug("Applying right alignment to date content: {Content}", trimmedContent);
+            return "Right";
+        }
+        
+        return null; // No special alignment
+    }
+    
+    /// <summary>
+    /// Creates a textbox with style including alignment
+    /// </summary>
+    private XElement CreateStyledTextbox(string name, string content, double width, string? textAlign, TableCellStyle? cellStyle)
+    {
+        var sanitizedContent = RdlNamespaces.SanitizeXmlString(content);
+        
+        var paragraphStyleElements = new List<object>();
+        if (!string.IsNullOrEmpty(textAlign))
+        {
+            paragraphStyleElements.Add(RdlNamespaces.RdlElement("TextAlign", textAlign));
+        }
+        
+        var textboxStyleElements = new List<object>();
+        if (cellStyle != null)
+        {
+            if (!string.IsNullOrEmpty(cellStyle.BackgroundColor))
+            {
+                textboxStyleElements.Add(RdlNamespaces.RdlElement("BackgroundColor", cellStyle.BackgroundColor));
+            }
+        }
+        
+        return RdlNamespaces.RdlElement("Textbox",
+            new XAttribute("Name", name),
+            RdlNamespaces.RdlElement("CanGrow", "true"),
+            RdlNamespaces.RdlElement("KeepTogether", "true"),
+            RdlNamespaces.RdlElement("Paragraphs",
+                RdlNamespaces.RdlElement("Paragraph",
+                    RdlNamespaces.RdlElement("TextRuns",
+                        RdlNamespaces.RdlElement("TextRun",
+                            RdlNamespaces.RdlElement("Value", sanitizedContent),
+                            RdlNamespaces.RdlElement("Style")
+                        )
+                    ),
+                    RdlNamespaces.RdlElement("Style", paragraphStyleElements.ToArray())
+                )
+            ),
+            RdlNamespaces.RdElement("DefaultName", name),
+            RdlNamespaces.RdlElement("Style", textboxStyleElements.ToArray())
         );
     }
 

@@ -201,6 +201,35 @@ public record GenerationOptions
     
     /// <summary>Maximum image resolution (DPI)</summary>
     public int MaxImageResolution { get; init; } = 300;
+    
+    /// <summary>
+    /// Gets the printable width (PageWidth - LeftMargin - RightMargin)
+    /// </summary>
+    public string PrintableWidth
+    {
+        get
+        {
+            var pageWidth = MarginOptions.ParseInches(DefaultPageWidth);
+            var leftMargin = MarginOptions.ParseInches(DefaultMargins.Left);
+            var rightMargin = MarginOptions.ParseInches(DefaultMargins.Right);
+            var printable = pageWidth - leftMargin - rightMargin;
+            return $"{printable:F2}in";
+        }
+    }
+    
+    /// <summary>
+    /// Gets the printable width in inches as a double value
+    /// </summary>
+    public double PrintableWidthInches
+    {
+        get
+        {
+            var pageWidth = MarginOptions.ParseInches(DefaultPageWidth);
+            var leftMargin = MarginOptions.ParseInches(DefaultMargins.Left);
+            var rightMargin = MarginOptions.ParseInches(DefaultMargins.Right);
+            return pageWidth - leftMargin - rightMargin;
+        }
+    }
 }
 
 /// <summary>
@@ -219,6 +248,18 @@ public record MarginOptions
     
     /// <summary>Right margin</summary>
     public string Right { get; init; } = "0.75in";
+    
+    /// <summary>
+    /// Parses a dimension string (e.g., "0.75in") and returns the numeric value in inches
+    /// </summary>
+    public static double ParseInches(string dimension)
+    {
+        if (string.IsNullOrWhiteSpace(dimension))
+            return 0;
+        
+        var value = dimension.Replace("in", "").Trim();
+        return double.TryParse(value, out var result) ? result : 0;
+    }
 }
 
 /// <summary>

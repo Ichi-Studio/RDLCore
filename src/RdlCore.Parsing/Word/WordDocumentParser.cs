@@ -1154,17 +1154,20 @@ public class WordDocumentParser : IDocumentParser
                 var cellWidth = cellProps?.TableCellWidth?.Width?.Value != null
                     ? BoundingBoxCalculator.TwipsToPoints(int.Parse(cellProps.TableCellWidth.Width.Value))
                     : (colIndex < columnWidths.Count ? columnWidths[colIndex] : 100.0);
+                
+                // Get column span from GridSpan property
+                var colSpan = cellProps?.GridSpan?.Val?.Value ?? 1;
 
                 cells.Add(new AxiomTableCell(
                     RowIndex: rowIndex,
                     ColumnIndex: colIndex,
-                    RowSpan: 1, // TODO: Handle merged cells
-                    ColSpan: 1,
+                    RowSpan: 1, // TODO: Handle vertical merged cells
+                    ColSpan: colSpan,
                     Width: cellWidth,
                     Content: cellContent,
                     Style: ExtractCellStyle(cellProps)));
 
-                colIndex++;
+                colIndex += colSpan;
             }
 
             rows.Add(new AxiomTableRow(rowIndex, rowHeight, cells.AsReadOnly()));

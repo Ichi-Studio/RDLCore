@@ -79,7 +79,10 @@ public class ConversionPipeline : IConversionPipelineService
                 PipelinePhase.Synthesis,
                 progress,
                 completedPhases,
-                async ct => await _synthesisService.GenerateMultipleRdlDocumentsAsync(documentStructure, logicResult, ct),
+                async ct => await _synthesisService.GenerateMultipleRdlDocumentsAsync(
+                    documentStructure, 
+                    logicResult, 
+                    ct),
                 cancellationToken);
 
             var rdlDocuments = synthesisResult!;

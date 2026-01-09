@@ -54,7 +54,7 @@ public class RdlDocumentBuilder
     {
         return RdlNamespaces.RdlElement("DataSources",
             RdlNamespaces.RdlElement("DataSource",
-                new XAttribute("Name", $"{dataSetName}DataSource"),
+                new XAttribute("Name", "DataSource"),
                 RdlNamespaces.RdElement("DataSourceID", Guid.NewGuid().ToString()),
                 RdlNamespaces.RdlElement("ConnectionProperties",
                     RdlNamespaces.RdlElement("DataProvider", "System.Data.DataSet"),
@@ -75,7 +75,7 @@ public class RdlDocumentBuilder
                 new XAttribute("Name", dataSetName),
                 // Query element is required to link DataSet to DataSource
                 RdlNamespaces.RdlElement("Query",
-                    RdlNamespaces.RdlElement("DataSourceName", $"{dataSetName}DataSource"),
+                    RdlNamespaces.RdlElement("DataSourceName", "DataSource"),
                     RdlNamespaces.RdlElement("CommandText", "/* Local Report */")
                 ),
                 RdlNamespaces.RdlElement("Fields",
@@ -106,7 +106,8 @@ public class RdlDocumentBuilder
                     RdlNamespaces.RdlElement("ReportItems"),
                     RdlNamespaces.RdlElement("Height", "6in")
                 ),
-                RdlNamespaces.RdlElement("Width", gen.DefaultPageWidth),
+                // Use printable width (PageWidth - LeftMargin - RightMargin) to avoid horizontal pagination
+                RdlNamespaces.RdlElement("Width", gen.PrintableWidth),
                 RdlNamespaces.RdlElement("Page",
                     RdlNamespaces.RdlElement("PageHeight", gen.DefaultPageHeight),
                     RdlNamespaces.RdlElement("PageWidth", gen.DefaultPageWidth),

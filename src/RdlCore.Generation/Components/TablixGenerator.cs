@@ -120,18 +120,39 @@ public class TablixGenerator
     private XElement CreateTablixRow(Abstractions.Models.TableRow row, int tablixId, int expectedColumnCount)
     {
         var cells = new List<XElement>();
+        var cellIndex = 0;
         
-        // Ensure we have exactly expectedColumnCount cells
-        for (int i = 0; i < expectedColumnCount; i++)
+        // Process each cell, accounting for ColSpan
+        for (int colPos = 0; colPos < expectedColumnCount; colPos++)
         {
-            if (i < row.Cells.Count)
+            if (cellIndex < row.Cells.Count)
             {
-                cells.Add(CreateTablixCell(row.Cells[i], tablixId));
+                var cell = row.Cells[cellIndex];
+                
+                // Check if this is the position where the cell starts
+                if (cell.ColumnIndex == colPos)
+                {
+                    cells.Add(CreateTablixCell(cell, tablixId));
+                    
+                    // Add empty TablixCell for merged columns
+                    for (int span = 1; span < cell.ColSpan && colPos + span < expectedColumnCount; span++)
+                    {
+                        cells.Add(RdlNamespaces.RdlElement("TablixCell"));
+                        colPos++;
+                    }
+                    
+                    cellIndex++;
+                }
+                else
+                {
+                    // Fill gap with empty cell
+                    cells.Add(CreateEmptyTablixCell(tablixId, row.Cells.Count > 0 ? row.Cells[0].RowIndex : 0, colPos));
+                }
             }
             else
             {
                 // Add empty cell if row has fewer cells than expected
-                cells.Add(CreateEmptyTablixCell(tablixId, row.Cells.Count > 0 ? row.Cells[0].RowIndex : 0, i));
+                cells.Add(CreateEmptyTablixCell(tablixId, row.Cells.Count > 0 ? row.Cells[0].RowIndex : 0, colPos));
             }
         }
 
@@ -198,16 +219,78 @@ public class TablixGenerator
         // Determine text alignment based on content and cell style
         var textAlign = DetermineTextAlignment(content, cell);
         
+        // Extract text style from cell content
+        var textStyle = ExtractTextStyle(cell);
+        
+        // Build CellContents with optional ColSpan
+        var cellContents = new List<object>
+        {
+            CreateStyledTextbox(
+                uniqueName,
+                content,
+                cell.Width / 72.0,
+                textAlign,
+                cell.Style,
+                textStyle)
+        };
+        
+        // Add ColSpan if cell spans multiple columns
+        if (cell.ColSpan > 1)
+        {
+            cellContents.Add(RdlNamespaces.RdlElement("ColSpan", cell.ColSpan.ToString()));
+        }
+        
         return RdlNamespaces.RdlElement("TablixCell",
-            RdlNamespaces.RdlElement("CellContents",
-                CreateStyledTextbox(
-                    uniqueName,
-                    content,
-                    cell.Width / 72.0,
-                    textAlign,
-                    cell.Style)
-            )
+            RdlNamespaces.RdlElement("CellContents", cellContents.ToArray())
         );
+    }
+    
+    /// <summary>
+    /// Extracts text style from cell content, checking all runs for styling
+    /// </summary>
+    private TextStyle? ExtractTextStyle(TableCell cell)
+    {
+        TextStyle? firstStyle = null;
+        bool hasUnderline = false;
+        bool hasBold = false;
+        bool hasItalic = false;
+        
+        foreach (var element in cell.Content)
+        {
+            if (element is ParagraphElement para)
+            {
+                foreach (var run in para.Runs)
+                {
+                    if (firstStyle == null && run.Style != null)
+                    {
+                        firstStyle = run.Style;
+                    }
+                    if (run.Style?.IsUnderline == true)
+                    {
+                        hasUnderline = true;
+                    }
+                    if (run.Style?.IsBold == true)
+                    {
+                        hasBold = true;
+                    }
+                    if (run.Style?.IsItalic == true)
+                    {
+                        hasItalic = true;
+                    }
+                }
+            }
+        }
+        
+        if (firstStyle == null)
+            return null;
+            
+        // Return style with merged underline/bold/italic from any run
+        return firstStyle with 
+        { 
+            IsUnderline = hasUnderline || firstStyle.IsUnderline,
+            IsBold = hasBold || firstStyle.IsBold,
+            IsItalic = hasItalic || firstStyle.IsItalic
+        };
     }
     
     /// <summary>
@@ -240,9 +323,9 @@ public class TablixGenerator
     }
     
     /// <summary>
-    /// Creates a textbox with style including alignment
+    /// Creates a textbox with style including alignment and text decoration
     /// </summary>
-    private XElement CreateStyledTextbox(string name, string content, double width, string? textAlign, TableCellStyle? cellStyle)
+    private XElement CreateStyledTextbox(string name, string content, double width, string? textAlign, TableCellStyle? cellStyle, TextStyle? textStyle = null)
     {
         var sanitizedContent = RdlNamespaces.SanitizeXmlString(content);
         
@@ -259,6 +342,54 @@ public class TablixGenerator
             {
                 textboxStyleElements.Add(RdlNamespaces.RdlElement("BackgroundColor", cellStyle.BackgroundColor));
             }
+            
+            // Apply cell borders
+            if (cellStyle.TopBorder != null)
+            {
+                textboxStyleElements.Add(CreateBorderElement("TopBorder", cellStyle.TopBorder));
+            }
+            if (cellStyle.BottomBorder != null)
+            {
+                textboxStyleElements.Add(CreateBorderElement("BottomBorder", cellStyle.BottomBorder));
+            }
+            if (cellStyle.LeftBorder != null)
+            {
+                textboxStyleElements.Add(CreateBorderElement("LeftBorder", cellStyle.LeftBorder));
+            }
+            if (cellStyle.RightBorder != null)
+            {
+                textboxStyleElements.Add(CreateBorderElement("RightBorder", cellStyle.RightBorder));
+            }
+        }
+        
+        // Build TextRun style elements
+        var textRunStyleElements = new List<object>();
+        if (textStyle != null)
+        {
+            if (textStyle.IsBold)
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontWeight", "Bold"));
+            }
+            if (textStyle.IsItalic)
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontStyle", "Italic"));
+            }
+            if (textStyle.IsUnderline)
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("TextDecoration", "Underline"));
+            }
+            if (!string.IsNullOrEmpty(textStyle.FontFamily))
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontFamily", textStyle.FontFamily));
+            }
+            if (textStyle.FontSize > 0)
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontSize", $"{textStyle.FontSize}pt"));
+            }
+            if (!string.IsNullOrEmpty(textStyle.Color))
+            {
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("Color", textStyle.Color));
+            }
         }
         
         return RdlNamespaces.RdlElement("Textbox",
@@ -270,7 +401,7 @@ public class TablixGenerator
                     RdlNamespaces.RdlElement("TextRuns",
                         RdlNamespaces.RdlElement("TextRun",
                             RdlNamespaces.RdlElement("Value", sanitizedContent),
-                            RdlNamespaces.RdlElement("Style")
+                            RdlNamespaces.RdlElement("Style", textRunStyleElements.ToArray())
                         )
                     ),
                     RdlNamespaces.RdlElement("Style", paragraphStyleElements.ToArray())
@@ -279,6 +410,26 @@ public class TablixGenerator
             RdlNamespaces.RdElement("DefaultName", name),
             RdlNamespaces.RdlElement("Style", textboxStyleElements.ToArray())
         );
+    }
+    
+    private XElement CreateBorderElement(string borderName, BorderStyle border)
+    {
+        var elements = new List<object>
+        {
+            RdlNamespaces.RdlElement("Style", "Solid")
+        };
+        
+        if (border.Width > 0)
+        {
+            elements.Add(RdlNamespaces.RdlElement("Width", $"{border.Width}pt"));
+        }
+        
+        if (!string.IsNullOrEmpty(border.Color))
+        {
+            elements.Add(RdlNamespaces.RdlElement("Color", border.Color));
+        }
+        
+        return RdlNamespaces.RdlElement(borderName, elements.ToArray());
     }
 
     private XElement CreateHeaderCell(string headerText)

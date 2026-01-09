@@ -221,11 +221,190 @@ public class SchemaSynthesisService : ISchemaSynthesisService
         return element switch
         {
             ParagraphElement para => await CreateTextboxAsync(para, cancellationToken),
-            TableElement table => _tablixGenerator.CreateTablix(table, null, 
-                table.Bounds.ToInches().Left, table.Bounds.ToInches().Top),
+            TableElement table => CreateTableWithExtractedDateRow(table),
             ImageElement img => CreateImage(img),
             _ => null
         };
+    }
+
+    /// <summary>
+    /// Creates table elements, extracting date rows as separate textboxes positioned to the right
+    /// </summary>
+    private XElement CreateTableWithExtractedDateRow(TableElement table)
+    {
+        var bounds = table.Bounds.ToInches();
+        var elements = new List<XElement>();
+        
+        // Check if first row contains date-related content that should be extracted
+        var extractedRows = new List<int>();
+        double dateRowHeight = 0;
+        
+        for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
+        {
+            var row = table.Rows[rowIndex];
+            // Check if this row should be extracted (contains "日期" and is a simple row)
+            if (ShouldExtractAsDateRow(row))
+            {
+                var dateContent = GetRowContent(row);
+                var rowHeight = row.Height / 72.0;
+                
+                // Create a right-aligned textbox for the date
+                var dateTextbox = CreateDateTextbox(dateContent, bounds.Left, bounds.Top + dateRowHeight, bounds.Width);
+                elements.Add(dateTextbox);
+                
+                extractedRows.Add(rowIndex);
+                dateRowHeight += rowHeight;
+                
+                _logger.LogInformation("Extracted date row: {Content}", dateContent);
+            }
+        }
+        
+        // If we extracted any rows, create a modified table without those rows
+        if (extractedRows.Count > 0 && extractedRows.Count < table.Rows.Count)
+        {
+            var modifiedTable = CreateTableWithoutRows(table, extractedRows);
+            var tablix = _tablixGenerator.CreateTablix(modifiedTable, null, 
+                bounds.Left, bounds.Top + dateRowHeight);
+            elements.Add(tablix);
+        }
+        else if (extractedRows.Count == 0)
+        {
+            // No rows extracted, create normal tablix
+            return _tablixGenerator.CreateTablix(table, null, bounds.Left, bounds.Top);
+        }
+        
+        // If we have multiple elements, wrap them in a container or return them individually
+        // Since RDLC doesn't have a container, we'll return a Rectangle containing all elements
+        if (elements.Count == 1)
+        {
+            return elements[0];
+        }
+        
+        // Return as a Rectangle container
+        return CreateRectangleContainer(elements, bounds);
+    }
+    
+    /// <summary>
+    /// Determines if a row should be extracted as a separate date element
+    /// </summary>
+    private bool ShouldExtractAsDateRow(Abstractions.Models.TableRow row)
+    {
+        // Only extract if it's the first few rows and contains "日期"
+        if (row.Cells.Count == 0) return false;
+        
+        var content = GetRowContent(row);
+        var trimmed = content.Trim();
+        
+        // Check if it contains date-related content
+        // "日期" should be at the start or alone, not in a complex cell
+        return trimmed.Contains("日期") && 
+               !trimmed.Contains('(') && 
+               !trimmed.Contains('（') &&
+               trimmed.Length < 30 &&
+               row.Cells.Count <= 2; // Simple row with 1-2 cells
+    }
+    
+    /// <summary>
+    /// Gets the combined text content of a row
+    /// </summary>
+    private string GetRowContent(Abstractions.Models.TableRow row)
+    {
+        var contents = new List<string>();
+        foreach (var cell in row.Cells)
+        {
+            foreach (var element in cell.Content)
+            {
+                var text = element switch
+                {
+                    TextElement t => t.Text,
+                    ParagraphElement p => string.Join("", p.Runs.Select(r => r.Text)),
+                    _ => string.Empty
+                };
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    contents.Add(text);
+                }
+            }
+        }
+        return string.Join(" ", contents);
+    }
+    
+    /// <summary>
+    /// Creates a right-aligned textbox for date content
+    /// </summary>
+    private XElement CreateDateTextbox(string content, double left, double top, double tableWidth)
+    {
+        var name = $"DateTextbox_{Guid.NewGuid():N}".Substring(0, 20);
+        var sanitizedContent = RdlNamespaces.SanitizeXmlString(content);
+        
+        return RdlNamespaces.RdlElement("Textbox",
+            new XAttribute("Name", name),
+            RdlNamespaces.RdlElement("CanGrow", "true"),
+            RdlNamespaces.RdlElement("KeepTogether", "true"),
+            RdlNamespaces.RdlElement("Paragraphs",
+                RdlNamespaces.RdlElement("Paragraph",
+                    RdlNamespaces.RdlElement("TextRuns",
+                        RdlNamespaces.RdlElement("TextRun",
+                            RdlNamespaces.RdlElement("Value", sanitizedContent),
+                            RdlNamespaces.RdlElement("Style")
+                        )
+                    ),
+                    RdlNamespaces.RdlElement("Style",
+                        RdlNamespaces.RdlElement("TextAlign", "Right")
+                    )
+                )
+            ),
+            RdlNamespaces.RdElement("DefaultName", name),
+            RdlNamespaces.RdlElement("Top", $"{top:F5}in"),
+            RdlNamespaces.RdlElement("Left", $"{left:F5}in"),
+            RdlNamespaces.RdlElement("Height", "0.25in"),
+            RdlNamespaces.RdlElement("Width", $"{tableWidth:F5}in"),
+            RdlNamespaces.RdlElement("Style")
+        );
+    }
+    
+    /// <summary>
+    /// Creates a table without the specified rows
+    /// </summary>
+    private TableElement CreateTableWithoutRows(TableElement original, List<int> rowsToRemove)
+    {
+        var newRows = original.Rows
+            .Where((row, index) => !rowsToRemove.Contains(index))
+            .ToList();
+        
+        // Calculate new bounds
+        var removedHeight = rowsToRemove.Sum(i => original.Rows[i].Height);
+        var newBounds = new BoundingBox(
+            original.Bounds.Left,
+            original.Bounds.Top,
+            original.Bounds.Width,
+            original.Bounds.Height - removedHeight);
+        
+        return new TableElement(
+            original.Id,
+            newBounds,
+            original.ZIndex,
+            newRows.Count,
+            original.ColumnCount,
+            newRows.AsReadOnly());
+    }
+    
+    /// <summary>
+    /// Creates a Rectangle container for multiple elements
+    /// </summary>
+    private XElement CreateRectangleContainer(List<XElement> elements, BoundingBox bounds)
+    {
+        var name = $"Container_{Guid.NewGuid():N}".Substring(0, 20);
+        
+        return RdlNamespaces.RdlElement("Rectangle",
+            new XAttribute("Name", name),
+            RdlNamespaces.RdlElement("ReportItems", elements.ToArray()),
+            RdlNamespaces.RdlElement("Top", $"{bounds.Top:F5}in"),
+            RdlNamespaces.RdlElement("Left", $"{bounds.Left:F5}in"),
+            RdlNamespaces.RdlElement("Height", $"{bounds.Height:F5}in"),
+            RdlNamespaces.RdlElement("Width", $"{bounds.Width:F5}in"),
+            RdlNamespaces.RdlElement("Style")
+        );
     }
 
     private XElement CreateImage(ImageElement image)

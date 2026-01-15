@@ -183,3 +183,8 @@ appsettings.Local.json
 ## Publish output
 [Pp]ublish/
 [Pp]ublished/
+/src/RdlCore.Agent/bin/Debug/net10.0/RdlCore.Agent.deps.json
+/src/RdlCore.Generation/bin/Debug/net10.0/RdlCore.Generation.deps.json
+/src/RdlCore.Parsing/bin/Debug/net10.0/RdlCore.Parsing.deps.json
+/src/RdlCore.WebApi/bin/Debug/net10.0/RdlCore.WebApi.deps.json
+/src/RdlCore.Rendering/bin/Debug/net10.0/RdlCore.Rendering.deps.json

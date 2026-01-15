@@ -13,6 +13,7 @@
     
     <!-- OCR -->
     <PackageVersion Include="PaddleOCRSharp" Version="5.0.0" />
+    <PackageVersion Include="Paddle.Runtime.win_x64" Version="3.0.0" />
     
     <!-- Cross-platform Imaging -->
     <PackageVersion Include="SkiaSharp" Version="2.88.8" />

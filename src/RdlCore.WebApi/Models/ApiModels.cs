@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace RdlCore.WebApi.Models;
 
 /// <summary>

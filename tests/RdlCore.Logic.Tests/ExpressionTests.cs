@@ -110,7 +110,7 @@ public class VbExpressionGeneratorTests
         var ast = new AbstractSyntaxTree(
             AstNodeType.Conditional,
             "IIf",
-            new[] { condition, trueValue, falseValue },
+            [condition, trueValue, falseValue],
             null, null);
 
         // Act

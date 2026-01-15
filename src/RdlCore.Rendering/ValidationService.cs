@@ -1,6 +1,3 @@
-using RdlCore.Generation.Schema;
-using RdlCore.Rendering.Validation;
-
 namespace RdlCore.Rendering;
 
 /// <summary>

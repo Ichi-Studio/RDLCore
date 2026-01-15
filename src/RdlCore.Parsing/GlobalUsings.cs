@@ -1,4 +1,4 @@
-// Global using directives for RdlCore.Parsing
+// RdlCore.Parsing 全局 using 指令
 
 global using System;
 global using System.Collections.Generic;

@@ -1,10 +1,7 @@
-using System.Xml.Linq;
-using RdlCore.Abstractions.Enums;
-
 namespace RdlCore.Abstractions.Models;
 
 /// <summary>
-/// Represents a conversion request
+/// 表示转换请求
 /// </summary>
 public record ConversionRequest(
     Stream DocumentStream,
@@ -13,7 +10,7 @@ public record ConversionRequest(
     ConversionOptions Options);
 
 /// <summary>
-/// Conversion options
+/// 转换选项
 /// </summary>
 public record ConversionOptions(
     string? DataSetName,
@@ -27,7 +24,7 @@ public record ConversionOptions(
     double OcrConfidenceThreshold = 0.8);
 
 /// <summary>
-/// Represents the result of a conversion
+/// 表示转换结果
 /// </summary>
 public record ConversionResult(
     ConversionStatus Status,
@@ -40,7 +37,7 @@ public record ConversionResult(
     IReadOnlyList<RdlDocumentInfo>? AdditionalDocuments = null)
 {
     /// <summary>
-    /// Gets all RDL documents (main + additional)
+    /// 获取所有 RDL 文档（主文档 + 附加文档）
     /// </summary>
     public IReadOnlyList<RdlDocumentInfo> GetAllDocuments()
     {
@@ -58,7 +55,7 @@ public record ConversionResult(
 }
 
 /// <summary>
-/// Information about an individual RDL document
+/// 单个 RDL 文档的信息
 /// </summary>
 public record RdlDocumentInfo(
     string Name,
@@ -66,7 +63,7 @@ public record RdlDocumentInfo(
     int PageNumber);
 
 /// <summary>
-/// Summary of conversion results
+/// 转换结果摘要
 /// </summary>
 public record ConversionSummary(
     int TextboxCount,
@@ -78,7 +75,7 @@ public record ConversionSummary(
     int ErrorCount);
 
 /// <summary>
-/// Represents a request for human intervention
+/// 表示人工干预请求
 /// </summary>
 public record InterventionRequest(
     InterventionType Type,
@@ -89,7 +86,7 @@ public record InterventionRequest(
     IReadOnlyList<InterventionOption> Options);
 
 /// <summary>
-/// Represents an intervention option
+/// 表示干预选项
 /// </summary>
 public record InterventionOption(
     string Id,
@@ -97,7 +94,7 @@ public record InterventionOption(
     string? Preview);
 
 /// <summary>
-/// Represents intervention response
+/// 表示干预响应
 /// </summary>
 public record InterventionResponse(
     string RequestId,
@@ -105,7 +102,7 @@ public record InterventionResponse(
     string? CustomValue);
 
 /// <summary>
-/// Represents schema validation result
+/// 表示模式验证结果
 /// </summary>
 public record SchemaValidationResult(
     bool IsValid,
@@ -113,7 +110,7 @@ public record SchemaValidationResult(
     IReadOnlyList<ValidationMessage> Warnings);
 
 /// <summary>
-/// Represents visual comparison result
+/// 表示视觉比较结果
 /// </summary>
 public record VisualComparisonResult(
     bool IsMatch,
@@ -123,7 +120,7 @@ public record VisualComparisonResult(
     IReadOnlyList<DifferenceRegion> Differences);
 
 /// <summary>
-/// Represents a region of visual difference
+/// 表示视觉差异区域
 /// </summary>
 public record DifferenceRegion(
     BoundingBox Bounds,
@@ -131,7 +128,7 @@ public record DifferenceRegion(
     string Description);
 
 /// <summary>
-/// Represents pipeline progress
+/// 表示管道进度
 /// </summary>
 public record PipelineProgress(
     PipelinePhase CurrentPhase,
@@ -141,7 +138,7 @@ public record PipelineProgress(
     IReadOnlyList<PhaseResult> CompletedPhases);
 
 /// <summary>
-/// Represents the result of a pipeline phase
+/// 表示管道阶段的结果
 /// </summary>
 public record PhaseResult(
     PipelinePhase Phase,
@@ -150,60 +147,60 @@ public record PhaseResult(
     string? Message);
 
 /// <summary>
-/// Configuration options for the RDL Core system
+/// RDL Core 系统的配置选项
 /// </summary>
 public record AxiomRdlCoreOptions
 {
-    /// <summary>Parsing options</summary>
+    /// <summary>解析选项</summary>
     public ParsingOptions Parsing { get; init; } = new();
     
-    /// <summary>Generation options</summary>
+    /// <summary>生成选项</summary>
     public GenerationOptions Generation { get; init; } = new();
     
-    /// <summary>Validation options</summary>
+    /// <summary>验证选项</summary>
     public ValidationOptions Validation { get; init; } = new();
 }
 
 /// <summary>
-/// Parsing configuration options
+/// 解析配置选项
 /// </summary>
 public record ParsingOptions
 {
-    /// <summary>Maximum number of pages to process</summary>
+    /// <summary>要处理的最大页数</summary>
     public int MaxPageCount { get; init; } = 100;
     
-    /// <summary>Enable OCR for image-based PDFs</summary>
+    /// <summary>为基于图像的 PDF 启用 OCR</summary>
     public bool OcrEnabled { get; init; } = true;
     
-    /// <summary>OCR languages</summary>
+    /// <summary>OCR 语言</summary>
     public IReadOnlyList<string> OcrLanguages { get; init; } = ["en", "zh-Hans"];
     
-    /// <summary>Minimum OCR confidence threshold</summary>
+    /// <summary>最低 OCR 置信度阈值</summary>
     public double OcrConfidenceThreshold { get; init; } = 0.8;
 }
 
 /// <summary>
-/// Generation configuration options
+/// 生成配置选项
 /// </summary>
 public record GenerationOptions
 {
-    /// <summary>Default page width</summary>
+    /// <summary>默认页面宽度</summary>
     public string DefaultPageWidth { get; init; } = "8.5in";
     
-    /// <summary>Default page height</summary>
+    /// <summary>默认页面高度</summary>
     public string DefaultPageHeight { get; init; } = "11in";
     
-    /// <summary>Default margins</summary>
+    /// <summary>默认边距</summary>
     public MarginOptions DefaultMargins { get; init; } = new();
     
-    /// <summary>Embed images in report</summary>
+    /// <summary>在报表中嵌入图像</summary>
     public bool EmbedImages { get; init; } = true;
     
-    /// <summary>Maximum image resolution (DPI)</summary>
+    /// <summary>最大图像分辨率 (DPI)</summary>
     public int MaxImageResolution { get; init; } = 300;
     
     /// <summary>
-    /// Gets the printable width (PageWidth - LeftMargin - RightMargin)
+    /// 获取可打印宽度（页面宽度 - 左边距 - 右边距）
     /// </summary>
     public string PrintableWidth
     {
@@ -218,7 +215,7 @@ public record GenerationOptions
     }
     
     /// <summary>
-    /// Gets the printable width in inches as a double value
+    /// 以英寸为单位获取可打印宽度的双精度值
     /// </summary>
     public double PrintableWidthInches
     {
@@ -233,24 +230,24 @@ public record GenerationOptions
 }
 
 /// <summary>
-/// Margin configuration
+/// 边距配置
 /// </summary>
 public record MarginOptions
 {
-    /// <summary>Top margin</summary>
+    /// <summary>上边距</summary>
     public string Top { get; init; } = "0.5in";
     
-    /// <summary>Bottom margin</summary>
+    /// <summary>下边距</summary>
     public string Bottom { get; init; } = "0.5in";
     
-    /// <summary>Left margin</summary>
+    /// <summary>左边距</summary>
     public string Left { get; init; } = "0.75in";
     
-    /// <summary>Right margin</summary>
+    /// <summary>右边距</summary>
     public string Right { get; init; } = "0.75in";
     
     /// <summary>
-    /// Parses a dimension string (e.g., "0.75in") and returns the numeric value in inches
+    /// 解析尺寸字符串（例如 "0.75in"）并返回以英寸为单位的数值
     /// </summary>
     public static double ParseInches(string dimension)
     {
@@ -263,29 +260,29 @@ public record MarginOptions
 }
 
 /// <summary>
-/// Validation configuration options
+/// 验证配置选项
 /// </summary>
 public record ValidationOptions
 {
-    /// <summary>Enable strict schema validation</summary>
+    /// <summary>启用严格模式验证</summary>
     public bool StrictSchemaValidation { get; init; } = true;
     
-    /// <summary>Enable expression sandbox mode</summary>
+    /// <summary>启用表达式沙箱模式</summary>
     public bool ExpressionSandboxMode { get; init; } = true;
     
-    /// <summary>Visual comparison threshold (SSIM)</summary>
+    /// <summary>视觉比较阈值 (SSIM)</summary>
     public double VisualComparisonThreshold { get; init; } = 0.95;
 }
 
 /// <summary>
-/// Represents data set binding information
+/// 表示数据集绑定信息
 /// </summary>
 public record DataSetBinding(
     string DataSetName,
     IReadOnlyList<DataFieldInfo> Fields);
 
 /// <summary>
-/// Represents information about a data field
+/// 表示数据字段信息
 /// </summary>
 public record DataFieldInfo(
     string Name,
@@ -293,7 +290,7 @@ public record DataFieldInfo(
     string? DisplayName);
 
 /// <summary>
-/// Represents table structure for RDLC generation
+/// 表示 RDLC 生成的表格结构
 /// </summary>
 public record TableStructure(
     string Id,

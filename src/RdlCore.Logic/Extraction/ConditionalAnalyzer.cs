@@ -3,18 +3,12 @@ namespace RdlCore.Logic.Extraction;
 /// <summary>
 /// Analyzes conditional logic in field codes
 /// </summary>
-public class ConditionalAnalyzer
+public class ConditionalAnalyzer(
+    ILogger<ConditionalAnalyzer> logger,
+    FieldCodeParser parser)
 {
-    private readonly ILogger<ConditionalAnalyzer> _logger;
-    private readonly FieldCodeParser _parser;
-
-    public ConditionalAnalyzer(
-        ILogger<ConditionalAnalyzer> logger,
-        FieldCodeParser parser)
-    {
-        _logger = logger;
-        _parser = parser;
-    }
+    private readonly ILogger<ConditionalAnalyzer> _logger = logger;
+    private readonly FieldCodeParser _parser = parser;
 
     /// <summary>
     /// Analyzes field codes to extract conditional branches

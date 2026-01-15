@@ -1,6 +1,3 @@
-using RdlCore.Rendering.Validation;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace RdlCore.Rendering;
 
 /// <summary>

@@ -3,19 +3,11 @@ namespace RdlCore.Generation.Components;
 /// <summary>
 /// Generates Tablix elements for RDL reports
 /// </summary>
-public class TablixGenerator
+public class TablixGenerator(
+    ILogger<TablixGenerator> logger,
+    TextboxGenerator textboxGenerator)
 {
-    private readonly ILogger<TablixGenerator> _logger;
-    private readonly TextboxGenerator _textboxGenerator;
     private int _tablixCounter;
-
-    public TablixGenerator(
-        ILogger<TablixGenerator> logger,
-        TextboxGenerator textboxGenerator)
-    {
-        _logger = logger;
-        _textboxGenerator = textboxGenerator;
-    }
 
     /// <summary>
     /// Creates a Tablix element from a table
@@ -26,7 +18,7 @@ public class TablixGenerator
         var name = $"Tablix{tablixId}";
         var bounds = table.Bounds.ToInches();
 
-        _logger.LogInformation("Creating Tablix '{Name}' with {Rows}x{Cols} dimensions", 
+        logger.LogInformation("Creating Tablix '{Name}' with {Rows}x{Cols} dimensions", 
             name, table.RowCount, table.ColumnCount);
 
         // Get consistent column and row counts
@@ -54,7 +46,7 @@ public class TablixGenerator
     {
         var name = $"Tablix{++_tablixCounter}";
 
-        _logger.LogInformation("Creating Tablix '{Name}' from structure with binding to '{DataSet}'",
+        logger.LogInformation("Creating Tablix '{Name}' from structure with binding to '{DataSet}'",
             name, binding.DataSetName);
 
         var tablixColumns = CreateTablixColumns(structure.ColumnWidths);
@@ -168,7 +160,7 @@ public class TablixGenerator
         
         return RdlNamespaces.RdlElement("TablixCell",
             RdlNamespaces.RdlElement("CellContents",
-                _textboxGenerator.CreateSimpleTextbox(
+                textboxGenerator.CreateSimpleTextbox(
                     uniqueName,
                     string.Empty,
                     0, 0, 1.0, 0.25,
@@ -207,7 +199,7 @@ public class TablixGenerator
             RdlNamespaces.RdlElement("TablixCells", dataCells)
         ));
 
-        return rows.ToArray();
+        return [.. rows];
     }
 
     private XElement CreateTablixCell(TableCell cell, int tablixId)
@@ -315,7 +307,7 @@ public class TablixGenerator
         var trimmedContent = content.Trim();
         if (trimmedContent.Contains("日期") && !trimmedContent.Contains('(') && trimmedContent.Length < 20)
         {
-            _logger.LogDebug("Applying right alignment to date content: {Content}", trimmedContent);
+            logger.LogDebug("Applying right alignment to date content: {Content}", trimmedContent);
             return "Right";
         }
         

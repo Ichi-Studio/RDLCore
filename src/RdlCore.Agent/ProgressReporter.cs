@@ -1,20 +1,14 @@
 namespace RdlCore.Agent;
 
 /// <summary>
-/// Reports pipeline progress
+/// 报告管道进度
 /// </summary>
-public class ProgressReporter
+public class ProgressReporter(ILogger<ProgressReporter> logger)
 {
-    private readonly ILogger<ProgressReporter> _logger;
     private const int TotalPhases = 5;
 
-    public ProgressReporter(ILogger<ProgressReporter> logger)
-    {
-        _logger = logger;
-    }
-
     /// <summary>
-    /// Reports the start of a pipeline phase
+    /// 报告管道阶段开始
     /// </summary>
     public void ReportPhaseStart(
         PipelinePhase phase,
@@ -25,7 +19,7 @@ public class ProgressReporter
         var percentComplete = (phaseNumber - 1) * 100.0 / TotalPhases;
         var message = GetPhaseMessage(phase);
 
-        _logger.LogInformation("[{Phase}/{Total}] {Message}...", phaseNumber, TotalPhases, message);
+        logger.LogInformation("[{Phase}/{Total}] {Message}...", phaseNumber, TotalPhases, message);
 
         progress?.Report(new PipelineProgress(
             CurrentPhase: phase,
@@ -36,7 +30,7 @@ public class ProgressReporter
     }
 
     /// <summary>
-    /// Reports the completion of a pipeline phase
+    /// 报告管道阶段完成
     /// </summary>
     public void ReportPhaseComplete(
         PipelinePhase phase,
@@ -53,7 +47,7 @@ public class ProgressReporter
             message += $" ({additionalInfo})";
         }
 
-        _logger.LogInformation("[{Phase}/{Total}] {Message} ✓", phaseNumber, TotalPhases, message);
+        logger.LogInformation("[{Phase}/{Total}] {Message} ✓", phaseNumber, TotalPhases, message);
 
         progress?.Report(new PipelineProgress(
             CurrentPhase: phase,
@@ -64,7 +58,7 @@ public class ProgressReporter
     }
 
     /// <summary>
-    /// Reports a pipeline error
+    /// 报告管道错误
     /// </summary>
     public void ReportError(
         PipelinePhase phase,
@@ -72,7 +66,7 @@ public class ProgressReporter
         IReadOnlyList<PhaseResult> completedPhases,
         string errorMessage)
     {
-        _logger.LogError("[{Phase}] Error: {Message}", phase, errorMessage);
+        logger.LogError("[{Phase}] Error: {Message}", phase, errorMessage);
 
         progress?.Report(new PipelineProgress(
             CurrentPhase: phase,
@@ -84,11 +78,11 @@ public class ProgressReporter
 
     private static string GetPhaseMessage(PipelinePhase phase) => phase switch
     {
-        PipelinePhase.Perception => "Analyzing document structure",
-        PipelinePhase.Decomposition => "Extracting logic and expressions",
-        PipelinePhase.Synthesis => "Generating RDLC schema",
-        PipelinePhase.Translation => "Translating expressions to VBScript",
-        PipelinePhase.Validation => "Validating generated report",
-        _ => "Processing"
+        PipelinePhase.Perception => "分析文档结构",
+        PipelinePhase.Decomposition => "提取逻辑和表达式",
+        PipelinePhase.Synthesis => "生成 RDLC 模式",
+        PipelinePhase.Translation => "将表达式翻译为 VBScript",
+        PipelinePhase.Validation => "验证生成的报表",
+        _ => "处理中"
     };
 }

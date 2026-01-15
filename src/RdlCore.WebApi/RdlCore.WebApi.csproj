@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Paddle.Runtime.win_x64" />
   </ItemGroup>
 
   <ItemGroup>

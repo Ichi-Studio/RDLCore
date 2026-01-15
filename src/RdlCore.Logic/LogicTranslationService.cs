@@ -1,6 +1,3 @@
-using RdlCore.Logic.Extraction;
-using RdlCore.Logic.Translation;
-
 namespace RdlCore.Logic;
 
 /// <summary>

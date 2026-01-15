@@ -1,6 +1,3 @@
-using RdlCore.Parsing.Pdf;
-using RdlCore.WebApi.Models;
-
 namespace RdlCore.WebApi.Controllers;
 
 /// <summary>
@@ -9,16 +6,10 @@ namespace RdlCore.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class OcrController : ControllerBase
+public class OcrController(OcrEngine ocrEngine, ILogger<OcrController> logger) : ControllerBase
 {
-    private readonly OcrEngine _ocrEngine;
-    private readonly ILogger<OcrController> _logger;
-
-    public OcrController(OcrEngine ocrEngine, ILogger<OcrController> logger)
-    {
-        _ocrEngine = ocrEngine;
-        _logger = logger;
-    }
+    private readonly OcrEngine _ocrEngine = ocrEngine;
+    private readonly ILogger<OcrController> _logger = logger;
 
     /// <summary>
     /// 对上传的图片进行 OCR 文字识别

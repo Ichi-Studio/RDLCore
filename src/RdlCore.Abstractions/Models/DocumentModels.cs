@@ -1,14 +1,12 @@
-using RdlCore.Abstractions.Enums;
-
 namespace RdlCore.Abstractions.Models;
 
 /// <summary>
-/// Represents the structure of a parsed document
+/// 表示解析文档的结构
 /// </summary>
-/// <param name="Type">The document type</param>
-/// <param name="Pages">The list of page elements</param>
-/// <param name="LogicalElements">The list of logical elements</param>
-/// <param name="Metadata">Document metadata</param>
+/// <param name="Type">文档类型</param>
+/// <param name="Pages">页面元素列表</param>
+/// <param name="LogicalElements">逻辑元素列表</param>
+/// <param name="Metadata">文档元数据</param>
 public record DocumentStructureModel(
     Enums.DocumentType Type,
     IReadOnlyList<PageElement> Pages,
@@ -16,7 +14,7 @@ public record DocumentStructureModel(
     DocumentMetadata Metadata);
 
 /// <summary>
-/// Represents document metadata
+/// 表示文档元数据
 /// </summary>
 public record DocumentMetadata(
     string? Title,
@@ -28,7 +26,7 @@ public record DocumentMetadata(
     string? FileName);
 
 /// <summary>
-/// Represents a page element in the document
+/// 表示文档中的页面元素
 /// </summary>
 public record PageElement(
     int PageNumber,
@@ -37,7 +35,7 @@ public record PageElement(
     IReadOnlyList<ContentElement> Elements);
 
 /// <summary>
-/// Base class for content elements
+/// 内容元素的基类
 /// </summary>
 public abstract record ContentElement(
     string Id,
@@ -45,22 +43,22 @@ public abstract record ContentElement(
     int ZIndex);
 
 /// <summary>
-/// Represents a bounding box for layout positioning
+/// 表示布局定位的边界框
 /// </summary>
-/// <param name="Left">Left position in points</param>
-/// <param name="Top">Top position in points</param>
-/// <param name="Width">Width in points</param>
-/// <param name="Height">Height in points</param>
+/// <param name="Left">左侧位置（点）</param>
+/// <param name="Top">顶部位置（点）</param>
+/// <param name="Width">宽度（点）</param>
+/// <param name="Height">高度（点）</param>
 public record BoundingBox(double Left, double Top, double Width, double Height)
 {
-    /// <summary>Right edge position</summary>
+    /// <summary>右边缘位置</summary>
     public double Right => Left + Width;
     
-    /// <summary>Bottom edge position</summary>
+    /// <summary>底部边缘位置</summary>
     public double Bottom => Top + Height;
     
     /// <summary>
-    /// Converts points to inches (72 points = 1 inch)
+    /// 将点转换为英寸（72 点 = 1 英寸）
     /// </summary>
     public BoundingBox ToInches() => new(
         Left / 72.0,
@@ -70,7 +68,7 @@ public record BoundingBox(double Left, double Top, double Width, double Height)
 }
 
 /// <summary>
-/// Represents a logical element in the document
+/// 表示文档中的逻辑元素
 /// </summary>
 public record LogicalElement(
     string Id,
@@ -80,7 +78,7 @@ public record LogicalElement(
     IReadOnlyDictionary<string, string>? Properties);
 
 /// <summary>
-/// Represents a text element
+/// 表示文本元素
 /// </summary>
 public record TextElement(
     string Id,
@@ -90,7 +88,7 @@ public record TextElement(
     TextStyle Style) : ContentElement(Id, Bounds, ZIndex);
 
 /// <summary>
-/// Represents text styling
+/// 表示文本样式
 /// </summary>
 public record TextStyle(
     string FontFamily,
@@ -104,7 +102,7 @@ public record TextStyle(
     string? VerticalAlignment);
 
 /// <summary>
-/// Represents a table element
+/// 表示表格元素
 /// </summary>
 public record TableElement(
     string Id,
@@ -115,7 +113,7 @@ public record TableElement(
     IReadOnlyList<TableRow> Rows) : ContentElement(Id, Bounds, ZIndex);
 
 /// <summary>
-/// Represents a table row
+/// 表示表格行
 /// </summary>
 public record TableRow(
     int RowIndex,
@@ -123,7 +121,7 @@ public record TableRow(
     IReadOnlyList<TableCell> Cells);
 
 /// <summary>
-/// Represents a table cell
+/// 表示表格单元格
 /// </summary>
 public record TableCell(
     int RowIndex,
@@ -135,7 +133,7 @@ public record TableCell(
     TableCellStyle? Style);
 
 /// <summary>
-/// Represents table cell styling
+/// 表示表格单元格样式
 /// </summary>
 public record TableCellStyle(
     string? BackgroundColor,
@@ -147,7 +145,7 @@ public record TableCellStyle(
     PaddingStyle? Padding);
 
 /// <summary>
-/// Represents border styling
+/// 表示边框样式
 /// </summary>
 public record BorderStyle(
     string Style,
@@ -155,7 +153,7 @@ public record BorderStyle(
     string? Color);
 
 /// <summary>
-/// Represents padding
+/// 表示内边距
 /// </summary>
 public record PaddingStyle(
     double Top,
@@ -164,7 +162,7 @@ public record PaddingStyle(
     double Right);
 
 /// <summary>
-/// Represents an image element
+/// 表示图像元素
 /// </summary>
 public record ImageElement(
     string Id,
@@ -175,7 +173,7 @@ public record ImageElement(
     string? AlternateText) : ContentElement(Id, Bounds, ZIndex);
 
 /// <summary>
-/// Represents a paragraph element
+/// 表示段落元素
 /// </summary>
 public record ParagraphElement(
     string Id,
@@ -185,7 +183,7 @@ public record ParagraphElement(
     ParagraphStyle Style) : ContentElement(Id, Bounds, ZIndex);
 
 /// <summary>
-/// Represents a text run within a paragraph
+/// 表示段落中的文本运行
 /// </summary>
 public record TextRun(
     string Text,
@@ -193,7 +191,7 @@ public record TextRun(
     FieldCode? FieldCode);
 
 /// <summary>
-/// Represents paragraph styling
+/// 表示段落样式
 /// </summary>
 public record ParagraphStyle(
     double? LineSpacing,

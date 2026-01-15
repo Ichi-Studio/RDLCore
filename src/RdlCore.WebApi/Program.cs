@@ -1,12 +1,3 @@
-using System.Reflection;
-using System.Text.Json.Serialization;
-using RdlCore.Agent;
-using RdlCore.Generation;
-using RdlCore.Logic;
-using RdlCore.Parsing;
-using RdlCore.Rendering;
-using Microsoft.OpenApi.Models;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
@@ -154,40 +145,3 @@ Console.WriteLine("╚═══════════════════�
 Console.WriteLine();
 
 app.Run();
-
-/// <summary>
-/// Swagger 文件上传操作过滤器
-/// </summary>
-public class FileUploadOperationFilter : Swashbuckle.AspNetCore.SwaggerGen.IOperationFilter
-{
-    public void Apply(OpenApiOperation operation, Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext context)
-    {
-        var fileParams = context.MethodInfo.GetParameters()
-            .Where(p => p.ParameterType == typeof(IFormFile));
-
-        if (!fileParams.Any()) return;
-
-        operation.RequestBody = new OpenApiRequestBody
-        {
-            Content = new Dictionary<string, OpenApiMediaType>
-            {
-                ["multipart/form-data"] = new OpenApiMediaType
-                {
-                    Schema = new OpenApiSchema
-                    {
-                        Type = "object",
-                        Properties = fileParams.ToDictionary(
-                            p => p.Name!,
-                            p => new OpenApiSchema
-                            {
-                                Type = "string",
-                                Format = "binary",
-                                Description = "文件 (.docx 或 .pdf)"
-                            }),
-                        Required = fileParams.Select(p => p.Name!).ToHashSet()
-                    }
-                }
-            }
-        };
-    }
-}

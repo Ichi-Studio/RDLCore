@@ -1,5 +1,3 @@
-using RdlCore.WebApi.Models;
-
 namespace RdlCore.WebApi.Controllers;
 
 /// <summary>
@@ -8,15 +6,9 @@ namespace RdlCore.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class HealthController : ControllerBase
+public class HealthController(IServiceProvider serviceProvider) : ControllerBase
 {
     private static readonly DateTime StartTime = DateTime.UtcNow;
-    private readonly IServiceProvider _serviceProvider;
-
-    public HealthController(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
     /// <summary>
     /// 获取服务健康状态
@@ -79,7 +71,7 @@ public class HealthController : ControllerBase
     {
         try
         {
-            var service = _serviceProvider.GetService<T>();
+            var service = serviceProvider.GetService<T>();
             return service != null;
         }
         catch

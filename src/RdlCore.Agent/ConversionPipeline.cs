@@ -1,9 +1,7 @@
-using System.Diagnostics;
-
 namespace RdlCore.Agent;
 
 /// <summary>
-/// Executes the five-phase conversion pipeline
+/// 执行五阶段转换管道
 /// </summary>
 public class ConversionPipeline : IConversionPipelineService
 {
@@ -51,7 +49,7 @@ public class ConversionPipeline : IConversionPipelineService
 
         try
         {
-            // Phase 1: Perception
+            // 阶段 1: 感知
             var perceptionResult = await ExecutePhaseAsync(
                 PipelinePhase.Perception,
                 progress,
@@ -64,7 +62,7 @@ public class ConversionPipeline : IConversionPipelineService
 
             var documentStructure = perceptionResult!;
 
-            // Phase 2: Decomposition
+            // 阶段 2: 分解
             var decompositionResult = await ExecutePhaseAsync(
                 PipelinePhase.Decomposition,
                 progress,
@@ -74,7 +72,7 @@ public class ConversionPipeline : IConversionPipelineService
 
             var logicResult = decompositionResult!;
 
-            // Phase 3: Synthesis - Generate multiple documents if needed
+            // 阶段 3: 综合 - 如需生成多个文档
             var synthesisResult = await ExecutePhaseAsync(
                 PipelinePhase.Synthesis,
                 progress,
@@ -91,7 +89,7 @@ public class ConversionPipeline : IConversionPipelineService
                 ? rdlDocuments.Skip(1).ToList().AsReadOnly() 
                 : null;
 
-            // Phase 4: Translation
+            // 阶段 4: 翻译
             await ExecutePhaseAsync(
                 PipelinePhase.Translation,
                 progress,
@@ -109,7 +107,7 @@ public class ConversionPipeline : IConversionPipelineService
                 },
                 cancellationToken);
 
-            // Phase 5: Validation - validate primary document
+            // 阶段 5: 验证 - 验证主文档
             var validationResult = await ExecutePhaseAsync(
                 PipelinePhase.Validation,
                 progress,
@@ -131,14 +129,14 @@ public class ConversionPipeline : IConversionPipelineService
 
             var isValid = (bool)validationResult!;
 
-            // Save output if path specified
+            // 如果指定了路径，则保存输出
             string? outputPath = null;
             if (!string.IsNullOrEmpty(request.OutputPath) && !request.Options.DryRun && primaryDocument != null)
             {
                 outputPath = request.OutputPath;
                 await SaveDocumentAsync(primaryDocument, outputPath);
                 
-                // Save additional documents with numbered suffixes
+                // 使用编号后缀保存附加文档
                 if (additionalDocs != null)
                 {
                     var basePath = Path.GetDirectoryName(outputPath) ?? ".";

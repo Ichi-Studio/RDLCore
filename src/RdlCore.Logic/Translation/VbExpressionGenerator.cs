@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace RdlCore.Logic.Translation;
 
 /// <summary>

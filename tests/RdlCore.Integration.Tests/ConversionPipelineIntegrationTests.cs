@@ -1,9 +1,3 @@
-using RdlCore.Agent;
-using RdlCore.Generation;
-using RdlCore.Logic;
-using RdlCore.Parsing;
-using RdlCore.Rendering;
-
 namespace RdlCore.Integration.Tests;
 
 public class ConversionPipelineIntegrationTests
@@ -99,14 +93,14 @@ public class ConversionPipelineIntegrationTests
         var synthesisService = _serviceProvider.GetRequiredService<ISchemaSynthesisService>();
         var structure = new DocumentStructureModel(
             DocumentType.Word,
-            Array.Empty<PageElement>(),
-            Array.Empty<LogicalElement>(),
+            [],
+            [],
             new DocumentMetadata(null, null, null, null, null, 1, null));
         var logic = new LogicExtractionResult(
-            Array.Empty<FieldCode>(),
-            Array.Empty<ConditionalBranch>(),
-            Array.Empty<CalculationFormula>(),
-            Array.Empty<string>());
+            [],
+            [],
+            [],
+            []);
 
         // Act
         var doc = await synthesisService.GenerateRdlDocumentAsync(structure, logic);

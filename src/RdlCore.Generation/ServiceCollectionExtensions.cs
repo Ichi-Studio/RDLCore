@@ -1,6 +1,3 @@
-using RdlCore.Generation.Components;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace RdlCore.Generation;
 
 /// <summary>

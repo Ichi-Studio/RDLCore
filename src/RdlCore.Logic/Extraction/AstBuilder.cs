@@ -3,14 +3,9 @@ namespace RdlCore.Logic.Extraction;
 /// <summary>
 /// Builds Abstract Syntax Trees from expressions
 /// </summary>
-public class AstBuilder
+public class AstBuilder(ILogger<AstBuilder> logger)
 {
-    private readonly ILogger<AstBuilder> _logger;
-
-    public AstBuilder(ILogger<AstBuilder> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<AstBuilder> _logger = logger;
 
     /// <summary>
     /// Builds an AST from a simple expression string

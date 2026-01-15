@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Options;
-using RdlCore.Abstractions.Enums;
-using RdlCore.Generation.Components;
-
 namespace RdlCore.Generation;
 
 /// <summary>
@@ -96,13 +92,13 @@ public class SchemaSynthesisService : ISchemaSynthesisService
     private void AddEmbeddedImages(XDocument doc, List<(string name, string mimeType, byte[] data)> images)
     {
         var embeddedImagesElement = RdlNamespaces.RdlElement("EmbeddedImages",
-            images.Select(img => 
+            [.. images.Select(img => 
                 RdlNamespaces.RdlElement("EmbeddedImage",
                     new XAttribute("Name", img.name),
                     RdlNamespaces.RdlElement("MIMEType", img.mimeType),
                     RdlNamespaces.RdlElement("ImageData", Convert.ToBase64String(img.data))
                 )
-            ).ToArray()
+            )]
         );
 
         // Insert EmbeddedImages before ReportSections

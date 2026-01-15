@@ -34,11 +34,11 @@ public static class RdlNamespaces
     /// </summary>
     public static XAttribute[] GetDefaultNamespaceAttributes()
     {
-        return new[]
-        {
+        return
+        [
             new XAttribute("xmlns", Rdl.NamespaceName),
             new XAttribute(XNamespace.Xmlns + "rd", ReportDesigner.NamespaceName)
-        };
+        ];
     }
 
     /// <summary>

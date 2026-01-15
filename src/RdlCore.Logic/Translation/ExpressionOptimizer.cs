@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace RdlCore.Logic.Translation;
 
 /// <summary>

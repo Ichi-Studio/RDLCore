@@ -1,9 +1,7 @@
-using RdlCore.Abstractions.Enums;
-
 namespace RdlCore.Abstractions.Models;
 
 /// <summary>
-/// Represents a field code extracted from a document
+/// 表示从文档提取的域代码
 /// </summary>
 public record FieldCode(
     string Id,
@@ -14,7 +12,7 @@ public record FieldCode(
     IReadOnlyList<FieldCode>? NestedFields);
 
 /// <summary>
-/// Represents the result of logic extraction
+/// 表示逻辑提取的结果
 /// </summary>
 public record LogicExtractionResult(
     IReadOnlyList<FieldCode> FieldCodes,
@@ -23,7 +21,7 @@ public record LogicExtractionResult(
     IReadOnlyList<string> Warnings);
 
 /// <summary>
-/// Represents a conditional branch in the logic
+/// 表示逻辑中的条件分支
 /// </summary>
 public record ConditionalBranch(
     string Id,
@@ -33,7 +31,7 @@ public record ConditionalBranch(
     string SourceLocation);
 
 /// <summary>
-/// Represents a calculation formula
+/// 表示计算公式
 /// </summary>
 public record CalculationFormula(
     string Id,
@@ -42,7 +40,7 @@ public record CalculationFormula(
     string SourceLocation);
 
 /// <summary>
-/// Represents an Abstract Syntax Tree node
+/// 表示抽象语法树节点
 /// </summary>
 public record AbstractSyntaxTree(
     AstNodeType NodeType,
@@ -52,7 +50,7 @@ public record AbstractSyntaxTree(
     AstNodeMetadata? Metadata);
 
 /// <summary>
-/// Metadata for AST nodes
+/// AST 节点的元数据
 /// </summary>
 public record AstNodeMetadata(
     string? SourceText,
@@ -61,7 +59,7 @@ public record AstNodeMetadata(
     string? DataType);
 
 /// <summary>
-/// Represents a validated expression ready for RDLC
+/// 表示验证后的表达式，准备用于 RDLC
 /// </summary>
 public record ValidatedExpression(
     string Expression,
@@ -72,7 +70,7 @@ public record ValidatedExpression(
     IReadOnlyList<string> ReferencedParameters);
 
 /// <summary>
-/// Represents the result of expression validation
+/// 表示表达式验证的结果
 /// </summary>
 public record ExpressionValidationResult(
     bool IsValid,
@@ -80,7 +78,7 @@ public record ExpressionValidationResult(
     IReadOnlyList<string> SandboxViolations);
 
 /// <summary>
-/// Represents a validation message
+/// 表示验证消息
 /// </summary>
 public record ValidationMessage(
     ValidationSeverity Severity,
@@ -89,7 +87,7 @@ public record ValidationMessage(
     string? Location);
 
 /// <summary>
-/// Represents page analysis result
+/// 表示页面分析结果
 /// </summary>
 public record PageAnalysisResult(
     int PageNumber,

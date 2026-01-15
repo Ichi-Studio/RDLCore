@@ -1,16 +1,17 @@
-// Global using directives for RdlCore.Generation.Tests
+// RdlCore.Generation.Tests 全局 using 指令
 
-global using System;
-global using System.Collections.Generic;
+// System 命名空间
 global using System.Linq;
-global using System.Threading;
-global using System.Threading.Tasks;
-global using System.Xml.Linq;
+
+// 测试框架
 global using Xunit;
 global using FluentAssertions;
 global using Moq;
+
+// Microsoft Extensions
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
-global using RdlCore.Abstractions.Enums;
+
+// RdlCore 命名空间
 global using RdlCore.Abstractions.Models;
 global using RdlCore.Generation.Schema;

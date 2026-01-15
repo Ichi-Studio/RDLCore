@@ -1,14 +1,12 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace RdlCore.Agent;
 
 /// <summary>
-/// Extension methods for registering agent services
+/// 注册代理服务的扩展方法
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds agent orchestration services
+    /// 添加代理编排服务
     /// </summary>
     public static IServiceCollection AddRdlCoreAgent(this IServiceCollection services)
     {
@@ -20,11 +18,11 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds agent services with custom intervention callback
+    /// 添加带有自定义干预回调的代理服务
     /// </summary>
     public static IServiceCollection AddRdlCoreAgent(
         this IServiceCollection services,
-        Func<Abstractions.Models.InterventionRequest, Task<Abstractions.Models.InterventionResponse>> interventionCallback)
+        Func<InterventionRequest, Task<InterventionResponse>> interventionCallback)
     {
         services.AddSingleton<ProgressReporter>();
         services.AddSingleton<IHumanInterventionHandler>(sp =>

@@ -1,9 +1,7 @@
-using Microsoft.Extensions.Options;
-
 namespace RdlCore.Generation.Schema;
 
 /// <summary>
-/// Builds RDL documents from document models
+/// 从文档模型构建 RDL 文档
 /// </summary>
 public class RdlDocumentBuilder
 {
@@ -19,18 +17,18 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Creates an empty RDL document with basic structure
+    /// 创建带有基本结构的空 RDL 文档
     /// </summary>
     public XDocument CreateEmptyDocument(string? dataSetName = null)
     {
-        // Build content list - only include DataSources/DataSets if dataSetName is provided
-        var reportContent = new List<object?>
-        {
+        // 构建内容列表 - 仅在提供 dataSetName 时包含 DataSources/DataSets
+        List<object?> reportContent =
+        [
             RdlNamespaces.GetDefaultNamespaceAttributes()
-        };
+        ];
 
-        // Only add DataSources and DataSets when dataSetName is provided
-        // Empty DataSources element violates RDL 2016 Schema
+        // 仅在提供 dataSetName 时添加 DataSources 和 DataSets
+        // 空的 DataSources 元素违反 RDL 2016 模式
         if (!string.IsNullOrEmpty(dataSetName))
         {
             reportContent.Add(CreateDataSources(dataSetName));
@@ -41,14 +39,14 @@ public class RdlDocumentBuilder
 
         var doc = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
-            RdlNamespaces.RdlElement("Report", reportContent.Where(x => x != null).Cast<object>().ToArray())
+            RdlNamespaces.RdlElement("Report", [.. reportContent.Where(x => x != null).Cast<object>()])
         );
 
         return doc;
     }
 
     /// <summary>
-    /// Creates the DataSources element with a default data source
+    /// 使用默认数据源创建 DataSources 元素
     /// </summary>
     public XElement CreateDataSources(string dataSetName)
     {
@@ -94,7 +92,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Creates the ReportSections element
+    /// 创建 ReportSections 元素
     /// </summary>
     public XElement CreateReportSections()
     {
@@ -106,7 +104,7 @@ public class RdlDocumentBuilder
                     RdlNamespaces.RdlElement("ReportItems"),
                     RdlNamespaces.RdlElement("Height", "6in")
                 ),
-                // Use printable width (PageWidth - LeftMargin - RightMargin) to avoid horizontal pagination
+                // 使用可打印宽度（页面宽度 - 左边距 - 右边距）以避免水平分页
                 RdlNamespaces.RdlElement("Width", gen.PrintableWidth),
                 RdlNamespaces.RdlElement("Page",
                     RdlNamespaces.RdlElement("PageHeight", gen.DefaultPageHeight),
@@ -121,7 +119,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Adds a data field to the document
+    /// 将数据字段添加到文档
     /// </summary>
     public void AddDataField(XDocument doc, string dataSetName, string fieldName, string dataType)
     {
@@ -143,7 +141,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Adds a report item to the body
+    /// 将报表项添加到主体
     /// </summary>
     public void AddReportItem(XDocument doc, XElement item)
     {
@@ -152,7 +150,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Sets the page header
+    /// 设置页面页眉
     /// </summary>
     public void SetPageHeader(XDocument doc, XElement headerContent, bool printOnFirst = true, bool printOnLast = true)
     {
@@ -167,7 +165,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Sets the page header with multiple items and custom height
+    /// 使用多个项和自定义高度设置页面页眉
     /// </summary>
     public void SetPageHeader(XDocument doc, XElement[] headerItems, double heightInInches, bool printOnFirst = true, bool printOnLast = true)
     {
@@ -189,7 +187,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Sets the page footer
+    /// 设置页面页脚
     /// </summary>
     public void SetPageFooter(XDocument doc, XElement footerContent, bool printOnFirst = true, bool printOnLast = true)
     {
@@ -204,7 +202,7 @@ public class RdlDocumentBuilder
     }
 
     /// <summary>
-    /// Updates the body height based on content
+    /// 根据内容更新主体高度
     /// </summary>
     public void UpdateBodyHeight(XDocument doc, double heightInInches)
     {

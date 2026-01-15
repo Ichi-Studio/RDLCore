@@ -1,8 +1,3 @@
-using System.Text;
-using System.Xml.Linq;
-using System.IO.Compression;
-using RdlCore.WebApi.Models;
-
 namespace RdlCore.WebApi.Controllers;
 
 /// <summary>
@@ -11,24 +6,12 @@ namespace RdlCore.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class ConvertController : ControllerBase
+public class ConvertController(
+    IConversionPipelineService pipelineService,
+    IDocumentPerceptionService perceptionService,
+    ILogicDecompositionService decompositionService,
+    ILogger<ConvertController> logger) : ControllerBase
 {
-    private readonly IConversionPipelineService _pipelineService;
-    private readonly IDocumentPerceptionService _perceptionService;
-    private readonly ILogicDecompositionService _decompositionService;
-    private readonly ILogger<ConvertController> _logger;
-
-    public ConvertController(
-        IConversionPipelineService pipelineService,
-        IDocumentPerceptionService perceptionService,
-        ILogicDecompositionService decompositionService,
-        ILogger<ConvertController> logger)
-    {
-        _pipelineService = pipelineService;
-        _perceptionService = perceptionService;
-        _decompositionService = decompositionService;
-        _logger = logger;
-    }
 
     /// <summary>
     /// 将 Word/PDF 文档转换为 RDLC 报表定义
@@ -72,7 +55,7 @@ public class ConvertController : ControllerBase
 
         try
         {
-            _logger.LogInformation("开始转换文档: {FileName}, 大小: {Size} bytes", 
+            logger.LogInformation("开始转换文档: {FileName}, 大小: {Size} bytes", 
                 file.FileName, file.Length);
 
             await using var stream = file.OpenReadStream();
@@ -92,7 +75,7 @@ public class ConvertController : ControllerBase
                     VerboseOutput: request.Verbose,
                     DryRun: false));
 
-            var result = await _pipelineService.ExecuteAsync(conversionRequest, null, cancellationToken);
+            var result = await pipelineService.ExecuteAsync(conversionRequest, null, cancellationToken);
 
             var elapsed = DateTime.UtcNow - startTime;
             var isSuccess = result.Status == ConversionStatus.Completed || result.Status == ConversionStatus.CompletedWithWarnings;
@@ -147,7 +130,7 @@ public class ConvertController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "转换文档时发生错误: {FileName}", file.FileName);
+            logger.LogError(ex, "转换文档时发生错误: {FileName}", file.FileName);
             return StatusCode(500, new ConvertResponse
             {
                 Success = false,
@@ -197,10 +180,10 @@ public class ConvertController : ControllerBase
             memoryStream.Position = 0;
 
             var docType = extension == ".docx" ? RdlCore.Abstractions.Enums.DocumentType.Word : RdlCore.Abstractions.Enums.DocumentType.Pdf;
-            var structure = await _perceptionService.AnalyzeAsync(memoryStream, docType, cancellationToken);
+            var structure = await perceptionService.AnalyzeAsync(memoryStream, docType, cancellationToken);
 
             memoryStream.Position = 0;
-            var logicResult = await _decompositionService.ExtractFieldCodesAsync(structure, cancellationToken);
+            var logicResult = await decompositionService.ExtractFieldCodesAsync(structure, cancellationToken);
 
             var elements = new List<DetectedElement>();
             foreach (var page in structure.Pages)
@@ -246,7 +229,7 @@ public class ConvertController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "分析文档时发生错误: {FileName}", file.FileName);
+            logger.LogError(ex, "分析文档时发生错误: {FileName}", file.FileName);
             return StatusCode(500, new AnalyzeResponse
             {
                 Success = false,
@@ -254,6 +237,7 @@ public class ConvertController : ControllerBase
             });
         }
     }
+
 
     /// <summary>
     /// 下载转换后的 RDLC 文件（多页文档将返回 ZIP 压缩包）
@@ -298,7 +282,7 @@ public class ConvertController : ControllerBase
 
             var conversionRequest = new ConversionRequest(
                 DocumentStream: memoryStream,
-                DocumentType: extension == ".docx" ? RdlCore.Abstractions.Enums.DocumentType.Word : RdlCore.Abstractions.Enums.DocumentType.Pdf,
+                DocumentType: extension == ".docx" ? DocumentType.Word : DocumentType.Pdf,
                 OutputPath: null,
                 Options: new ConversionOptions(
                     DataSetName: dataSetName,
@@ -308,7 +292,7 @@ public class ConvertController : ControllerBase
                     VerboseOutput: false,
                     DryRun: false));
 
-            var result = await _pipelineService.ExecuteAsync(conversionRequest, null, cancellationToken);
+            var result = await pipelineService.ExecuteAsync(conversionRequest, null, cancellationToken);
             var isSuccess = result.Status == ConversionStatus.Completed || result.Status == ConversionStatus.CompletedWithWarnings;
 
             if (isSuccess && result.RdlDocument != null)
@@ -319,7 +303,7 @@ public class ConvertController : ControllerBase
                 // If multiple documents, return as ZIP
                 if (allDocuments.Count > 1)
                 {
-                    _logger.LogInformation("生成 {Count} 个 RDLC 文件，打包为 ZIP", allDocuments.Count);
+                    logger.LogInformation("生成 {Count} 个 RDLC 文件，打包为 ZIP", allDocuments.Count);
 
                     using var zipStream = new MemoryStream();
                     using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
@@ -360,7 +344,7 @@ public class ConvertController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "下载 RDLC 时发生错误: {FileName}", file.FileName);
+            logger.LogError(ex, "下载 RDLC 时发生错误: {FileName}", file.FileName);
             return StatusCode(500, new ConvertResponse
             {
                 Success = false,
@@ -389,7 +373,7 @@ public class ConvertController : ControllerBase
         }
 
         // Clean up: collapse multiple spaces, trim, remove leading/trailing dashes
-        var result = System.Text.RegularExpressions.Regex.Replace(sb.ToString(), @"\s+", " ").Trim().Trim('-').Trim();
+        var result = Regex.Replace(sb.ToString(), @"\s+", " ").Trim().Trim('-').Trim();
         return string.IsNullOrEmpty(result) ? "download" : result;
     }
 }

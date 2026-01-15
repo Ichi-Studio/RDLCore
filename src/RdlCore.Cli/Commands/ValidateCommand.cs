@@ -1,7 +1,3 @@
-using System.CommandLine;
-using System.Xml.Linq;
-using RdlCore.Generation.Schema;
-
 namespace RdlCore.Cli.Commands;
 
 /// <summary>

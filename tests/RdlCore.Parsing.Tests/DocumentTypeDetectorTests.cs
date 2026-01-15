@@ -1,5 +1,3 @@
-using RdlCore.Parsing.Common;
-
 namespace RdlCore.Parsing.Tests;
 
 public class DocumentTypeDetectorTests

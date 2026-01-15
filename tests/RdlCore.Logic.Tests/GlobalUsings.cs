@@ -1,15 +1,14 @@
-// Global using directives for RdlCore.Logic.Tests
+// RdlCore.Logic.Tests 全局 using 指令
 
-global using System;
-global using System.Collections.Generic;
-global using System.Linq;
-global using System.Threading;
-global using System.Threading.Tasks;
+// 测试框架
 global using Xunit;
 global using FluentAssertions;
 global using Moq;
+
+// Microsoft Extensions
 global using Microsoft.Extensions.Logging;
+
+// RdlCore 命名空间
 global using RdlCore.Abstractions.Enums;
 global using RdlCore.Abstractions.Models;
-global using RdlCore.Logic.Extraction;
 global using RdlCore.Logic.Translation;

@@ -1,5 +1,3 @@
-using System.CommandLine;
-
 namespace RdlCore.Cli.Commands;
 
 /// <summary>
@@ -59,7 +57,7 @@ public class ConvertCommand : Command
         var pipeline = services.GetRequiredService<IConversionPipelineService>();
         var logger = services.GetRequiredService<ILogger<ConvertCommand>>();
 
-        Console.WriteLine($"Axiom RDL-Core Converter v1.0.0");
+        Console.WriteLine($"RDL-Core Converter v1.0.0");
         Console.WriteLine();
 
         if (!input.Exists)

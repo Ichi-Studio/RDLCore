@@ -1,41 +1,33 @@
 namespace RdlCore.Agent;
 
 /// <summary>
-/// Handles human intervention requests during conversion
+/// 在转换过程中处理人工干预请求
 /// </summary>
-public class HumanInterventionHandler : IHumanInterventionHandler
+public class HumanInterventionHandler(
+    ILogger<HumanInterventionHandler> logger,
+    Func<InterventionRequest, Task<InterventionResponse>>? interactionCallback = null) : IHumanInterventionHandler
 {
-    private readonly ILogger<HumanInterventionHandler> _logger;
-    private readonly Func<InterventionRequest, Task<InterventionResponse>>? _interactionCallback;
-
-    public HumanInterventionHandler(
-        ILogger<HumanInterventionHandler> logger,
-        Func<InterventionRequest, Task<InterventionResponse>>? interactionCallback = null)
-    {
-        _logger = logger;
-        _interactionCallback = interactionCallback;
-    }
 
     /// <inheritdoc />
     public async Task<InterventionResponse> RequestInterventionAsync(
         InterventionRequest request,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogWarning(
+        logger.LogWarning(
             "Human intervention required: Type={Type}, Element={Element}, Confidence={Confidence}",
             request.Type, request.ElementPath, request.Confidence);
 
         LogInterventionDetails(request);
 
-        if (_interactionCallback != null)
+        if (interactionCallback != null)
         {
-            return await _interactionCallback(request);
+            return await interactionCallback(request);
         }
 
-        // Default behavior: select first option or return empty response
+        // 默认行为：选择第一个选项或返回空响应
         var defaultOption = request.Options.FirstOrDefault();
         
-        _logger.LogInformation("Auto-selecting option: {Option}", 
+        logger.LogInformation("Auto-selecting option: {Option}", 
             defaultOption?.Description ?? "None");
 
         return new InterventionResponse(
@@ -45,7 +37,7 @@ public class HumanInterventionHandler : IHumanInterventionHandler
     }
 
     /// <summary>
-    /// Creates an intervention request for complex logic
+    /// 为复杂逻辑创建干预请求
     /// </summary>
     public InterventionRequest CreateComplexLogicRequest(
         string elementPath,
@@ -68,7 +60,7 @@ public class HumanInterventionHandler : IHumanInterventionHandler
     }
 
     /// <summary>
-    /// Creates an intervention request for ambiguous layout
+    /// 为模糊布局创建干预请求
     /// </summary>
     public InterventionRequest CreateAmbiguousLayoutRequest(
         string elementPath,
@@ -89,7 +81,7 @@ public class HumanInterventionHandler : IHumanInterventionHandler
     }
 
     /// <summary>
-    /// Creates an intervention request for low OCR confidence
+    /// 为低 OCR 置信度创建干预请求
     /// </summary>
     public InterventionRequest CreateLowOcrConfidenceRequest(
         string elementPath,
@@ -117,7 +109,7 @@ public class HumanInterventionHandler : IHumanInterventionHandler
     }
 
     /// <summary>
-    /// Creates an intervention request for unsupported features
+    /// 为不支持的功能创建干预请求
     /// </summary>
     public InterventionRequest CreateUnsupportedFeatureRequest(
         string elementPath,
@@ -140,7 +132,7 @@ public class HumanInterventionHandler : IHumanInterventionHandler
 
     private void LogInterventionDetails(InterventionRequest request)
     {
-        _logger.LogDebug(@"
+        logger.LogDebug(@"
 ## Human Intervention Required
 
 ### Location

@@ -249,11 +249,11 @@ public class ConvertController(
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ConvertResponse), StatusCodes.Status400BadRequest)]
     [RequestSizeLimit(50 * 1024 * 1024)]
-    public async Task<IActionResult> DownloadRdlc(
-        IFormFile file,
-        [FromQuery] string dataSetName = "DefaultDataSet",
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> DownloadRdlc(IFormFile file,[FromQuery] string dataSetName = "DefaultDataSet",CancellationToken cancellationToken = default)
     {
+
+        //初始校验
+        
         if (file == null || file.Length == 0)
         {
             return BadRequest(new ConvertResponse
@@ -264,6 +264,7 @@ public class ConvertController(
         }
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
         if (extension != ".docx" && extension != ".pdf")
         {
             return BadRequest(new ConvertResponse
@@ -273,18 +274,25 @@ public class ConvertController(
             });
         }
 
+
+
         try
         {
+
+
             await using var stream = file.OpenReadStream();
+
             var memoryStream = new MemoryStream();
+
             await stream.CopyToAsync(memoryStream, cancellationToken);
+
             memoryStream.Position = 0;
 
             var conversionRequest = new ConversionRequest(
                 DocumentStream: memoryStream,
                 DocumentType: extension == ".docx" ? DocumentType.Word : DocumentType.Pdf,
                 OutputPath: null,
-                Options: new ConversionOptions(
+                Options: new (
                     DataSetName: dataSetName,
                     SchemaPath: null,
                     StyleTemplate: null,
@@ -292,12 +300,19 @@ public class ConvertController(
                     VerboseOutput: false,
                     DryRun: false));
 
+
+
+            //管道验证五个步骤执行转换
             var result = await pipelineService.ExecuteAsync(conversionRequest, null, cancellationToken);
+
+
             var isSuccess = result.Status == ConversionStatus.Completed || result.Status == ConversionStatus.CompletedWithWarnings;
 
             if (isSuccess && result.RdlDocument != null)
             {
+
                 var baseFileName = SanitizeFileName(Path.GetFileNameWithoutExtension(file.FileName));
+
                 var allDocuments = result.GetAllDocuments();
 
                 // If multiple documents, return as ZIP
@@ -306,11 +321,12 @@ public class ConvertController(
                     logger.LogInformation("生成 {Count} 个 RDLC 文件，打包为 ZIP", allDocuments.Count);
 
                     using var zipStream = new MemoryStream();
+
                     using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
                     {
                         foreach (var doc in allDocuments)
                         {
-                            var entryName = $"{baseFileName}_{doc.PageNumber}.rdlc";
+                            var entryName = $"{baseFileName}_N{doc.PageNumber}.rdlc";
                             var entry = archive.CreateEntry(entryName, CompressionLevel.Fastest);
                             
                             using var entryStream = entry.Open();

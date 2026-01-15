@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/samples/" />
+  <Folder Name="/src/">
+    <Project Path="src/RdlCore.Abstractions/RdlCore.Abstractions.csproj" />
+    <Project Path="src/RdlCore.Agent/RdlCore.Agent.csproj" />
+    <Project Path="src/RdlCore.Cli/RdlCore.Cli.csproj" />
+    <Project Path="src/RdlCore.Generation/RdlCore.Generation.csproj" />
+    <Project Path="src/RdlCore.Logic/RdlCore.Logic.csproj" />
+    <Project Path="src/RdlCore.Parsing/RdlCore.Parsing.csproj" />
+    <Project Path="src/RdlCore.Rendering/RdlCore.Rendering.csproj" />
+    <Project Path="src/RdlCore.WebApi/RdlCore.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RdlCore.Generation.Tests/RdlCore.Generation.Tests.csproj" />
+    <Project Path="tests/RdlCore.Integration.Tests/RdlCore.Integration.Tests.csproj" />
+    <Project Path="tests/RdlCore.Logic.Tests/RdlCore.Logic.Tests.csproj" />
+    <Project Path="tests/RdlCore.Parsing.Tests/RdlCore.Parsing.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -8,8 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RdlCore.Abstractions\RdlCore.Abstractions.csproj" />
-    <ProjectReference Include="..\RdlCore.Logic\RdlCore.Logic.csproj" />
     <ProjectReference Include="..\RdlCore.Generation\RdlCore.Generation.csproj" />
   </ItemGroup>
 

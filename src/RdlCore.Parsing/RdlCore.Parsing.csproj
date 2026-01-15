@@ -15,8 +15,6 @@
     <PackageReference Include="DocumentFormat.OpenXml" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
-    <PackageReference Include="PaddleOCRSharp" />
-    <PackageReference Update="Paddle.Runtime.win_x64" VersionOverride="3.0.0" />
   </ItemGroup>
 
 </Project>

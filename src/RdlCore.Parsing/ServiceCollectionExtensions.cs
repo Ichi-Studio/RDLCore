@@ -1,5 +1,4 @@
 using RdlCore.Parsing.Common;
-using RdlCore.Parsing.Pdf;
 using RdlCore.Parsing.Word;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,10 +24,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DocBinaryConverter>();
         services.AddSingleton<IDocumentParser, WordDocumentParser>();
 
-        // PDF parsing
-        services.AddSingleton<LayoutAnalyzer>();
-        services.AddSingleton<OcrEngine>();
-        services.AddSingleton<IDocumentParser, PdfDocumentParser>();
 
         // Main perception service
         services.AddSingleton<IDocumentPerceptionService, DocumentPerceptionService>();

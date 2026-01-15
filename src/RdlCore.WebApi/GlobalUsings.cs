@@ -1,18 +1,6 @@
 // RdlCore.WebApi 全局 using 指令
 
-global using System;
-
-global using System.Collections.Generic;
-
-global using System.Linq;
-
-global using System.Threading;
-
-global using System.Threading.Tasks;
-
 global using Microsoft.AspNetCore.Mvc;
-
-global using Microsoft.Extensions.Logging;
 
 global using RdlCore.Abstractions.Enums;
 
@@ -45,7 +33,5 @@ global using System.Xml.Linq;
 global using System.IO.Compression;
 
 global using RdlCore.WebApi.Models;
-
-global using RdlCore.Parsing.Pdf;
 
 global using System.Text.RegularExpressions;

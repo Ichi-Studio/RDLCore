@@ -1,12 +1,3 @@
-using System.CommandLine;
-using RdlCore.Agent;
-using RdlCore.Cli.Commands;
-using RdlCore.Generation;
-using RdlCore.Logic;
-using RdlCore.Parsing;
-using RdlCore.Rendering;
-using Microsoft.Extensions.Configuration;
-
 namespace RdlCore.Cli;
 
 /// <summary>

@@ -326,7 +326,7 @@ public class ConvertController(
                     {
                         foreach (var doc in allDocuments)
                         {
-                            var entryName = $"{baseFileName}_N{doc.PageNumber}.rdlc";
+                            var entryName = $"{baseFileName}_{doc.PageNumber}.rdlc";
                             var entry = archive.CreateEntry(entryName, CompressionLevel.Fastest);
                             
                             using var entryStream = entry.Open();

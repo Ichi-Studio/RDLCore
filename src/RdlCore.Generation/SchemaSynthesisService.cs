@@ -364,6 +364,7 @@ public class SchemaSynthesisService : ISchemaSynthesisService
         for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
         {
             var row = table.Rows[rowIndex];
+            
             // Check if this row should be extracted (contains "日期" and is a simple row)
             if (ShouldExtractAsDateRow(row))
             {

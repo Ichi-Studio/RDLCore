@@ -34,12 +34,18 @@ public class ConversionPipeline : IConversionPipelineService
         _progressReporter = progressReporter;
     }
 
-    /// <inheritdoc />
-    public async Task<ConversionResult> ExecuteAsync(
-        ConversionRequest request,
-        IProgress<PipelineProgress>? progress = null,
-        CancellationToken cancellationToken = default)
+    
+    /// <summary>
+    /// 管道流水线入口
+    /// </summary>
+    /// <param name="request">输入请求</param>
+    /// <param name="progress">进度回调接口，上报每个阶段的进度</param>
+    /// <param name="cancellationToken">取消操作</param>
+    /// <returns></returns>
+    public async Task<ConversionResult> ExecuteAsync(ConversionRequest request,IProgress<PipelineProgress>? progress = null,CancellationToken cancellationToken = default)
     {
+
+        // 启动总计时器、记录已经完成的阶段、验证消息和人工干预请求  
         var stopwatch = Stopwatch.StartNew();
         var completedPhases = new List<PhaseResult>();
         var messages = new List<ValidationMessage>();
@@ -151,13 +157,15 @@ public class ConversionPipeline : IConversionPipelineService
                 }
             }
 
+            //停止计时器，记录耗时
             stopwatch.Stop();
 
-            var status = isValid
-                ? (messages.Exists(m => m.Severity == ValidationSeverity.Warning)
-                    ? ConversionStatus.CompletedWithWarnings
-                    : ConversionStatus.Completed)
-                : ConversionStatus.Failed;
+            var hasWarnings = messages.Exists(m => m.Severity == ValidationSeverity.Warning);
+            var status = ConversionStatus.Failed;
+            if (isValid)
+            {
+                status = hasWarnings ? ConversionStatus.CompletedWithWarnings : ConversionStatus.Completed;
+            }
 
             var summary = primaryDocument != null 
                 ? CreateSummary(primaryDocument, messages) 
@@ -178,7 +186,9 @@ public class ConversionPipeline : IConversionPipelineService
         }
         catch (OperationCanceledException)
         {
+
             _logger.LogWarning("Conversion pipeline cancelled");
+            
             stopwatch.Stop();
 
             return new ConversionResult(

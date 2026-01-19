@@ -1112,12 +1112,11 @@
 
                 if (response.ok) {
                     const blob = await response.blob();
-                    const contentDisposition = response.headers.get('content-disposition');
-                    let filename = 'output.rdlc';
-                    if (contentDisposition) {
-                        const match = contentDisposition.match(/filename=(.+)/);
-                        if (match) filename = match[1].replace(/"/g, '');
-                    }
+                    // 直接用上传的文件名构建下载文件名
+                    const originalName = file.name.replace(/\.[^/.]+$/, ''); // 去掉扩展名
+                    const contentType = response.headers.get('content-type');
+                    const isZip = contentType && contentType.includes('zip');
+                    const filename = isZip ? `${originalName}.zip` : `${originalName}.rdlc`;
                     
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');

@@ -435,12 +435,16 @@ public class SchemaSynthesisService : ISchemaSynthesisService
         var contents = new List<string>();
         foreach (var cell in row.Cells)
         {
+            if (cell.Content == null) continue;
+            
             foreach (var element in cell.Content)
             {
                 var text = element switch
                 {
                     TextElement t => t.Text,
-                    ParagraphElement p => string.Join("", p.Runs.Select(r => r.Text)),
+                    ParagraphElement p => p.Runs != null 
+                        ? string.Join("", p.Runs.Where(r => r != null).Select(r => r.Text ?? string.Empty))
+                        : string.Empty,
                     _ => string.Empty
                 };
                 if (!string.IsNullOrWhiteSpace(text))

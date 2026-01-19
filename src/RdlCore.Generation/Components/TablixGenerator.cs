@@ -82,6 +82,14 @@ public class TablixGenerator(
     {
         if (table.Rows.Count == 0 || expectedColumnCount == 0)
         {
+            // Return empty TablixColumns with at least one default column to avoid invalid RDLC
+            if (expectedColumnCount == 0 && table.Rows.Count > 0)
+            {
+                return RdlNamespaces.RdlElement("TablixColumns",
+                    RdlNamespaces.RdlElement("TablixColumn",
+                        RdlNamespaces.RdlElement("Width", "1.00000in")
+                    ));
+            }
             return RdlNamespaces.RdlElement("TablixColumns");
         }
 
@@ -90,7 +98,14 @@ public class TablixGenerator(
         
         for (int i = 0; i < expectedColumnCount; i++)
         {
-            var width = i < firstRow.Cells.Count ? firstRow.Cells[i].Width / 72.0 : 1.0;
+            // Safely access cell width with bounds checking
+            double width = 1.0; // Default width
+            if (i < firstRow.Cells.Count && firstRow.Cells[i] != null)
+            {
+                width = firstRow.Cells[i].Width / 72.0;
+                // Ensure minimum width to prevent rendering issues
+                if (width < 0.1) width = 0.5;
+            }
             columns.Add(RdlNamespaces.RdlElement("TablixColumn",
                 RdlNamespaces.RdlElement("Width", $"{width:F5}in")
             ));
@@ -124,10 +139,20 @@ public class TablixGenerator(
                 // Check if this is the position where the cell starts
                 if (cell.ColumnIndex == colPos)
                 {
-                    cells.Add(CreateTablixCell(cell, tablixId));
+                    // Clamp ColSpan to not exceed the remaining columns
+                    var effectiveColSpan = Math.Min(cell.ColSpan, expectedColumnCount - colPos);
                     
-                    // Add empty TablixCell for merged columns
-                    for (int span = 1; span < cell.ColSpan && colPos + span < expectedColumnCount; span++)
+                    // Create the cell with potentially adjusted ColSpan
+                    if (effectiveColSpan != cell.ColSpan)
+                    {
+                        logger.LogWarning("Adjusted ColSpan for cell at row {Row}, col {Col} from {Original} to {Effective}",
+                            cell.RowIndex, cell.ColumnIndex, cell.ColSpan, effectiveColSpan);
+                    }
+                    
+                    cells.Add(CreateTablixCellWithColSpan(cell, tablixId, effectiveColSpan));
+                    
+                    // Add empty TablixCell for merged columns (use <= to include the last position)
+                    for (int span = 1; span < effectiveColSpan; span++)
                     {
                         cells.Add(RdlNamespaces.RdlElement("TablixCell"));
                         colPos++;
@@ -151,6 +176,38 @@ public class TablixGenerator(
         return RdlNamespaces.RdlElement("TablixRow",
             RdlNamespaces.RdlElement("Height", $"{row.Height / 72.0:F5}in"),
             RdlNamespaces.RdlElement("TablixCells", cells.ToArray())
+        );
+    }
+    
+    /// <summary>
+    /// Creates a TablixCell with explicit ColSpan value (may differ from original cell.ColSpan if clamped)
+    /// </summary>
+    private XElement CreateTablixCellWithColSpan(TableCell cell, int tablixId, int effectiveColSpan)
+    {
+        var content = GetCellContent(cell);
+        var uniqueName = $"Tablix{tablixId}_Cell_{cell.RowIndex}_{cell.ColumnIndex}";
+        var textAlign = DetermineTextAlignment(content, cell);
+        var textStyle = ExtractTextStyle(cell);
+        
+        var cellContents = new List<object>
+        {
+            CreateStyledTextbox(
+                uniqueName,
+                content,
+                cell.Width / 72.0,
+                textAlign,
+                cell.Style,
+                textStyle)
+        };
+        
+        // Add ColSpan only if greater than 1
+        if (effectiveColSpan > 1)
+        {
+            cellContents.Add(RdlNamespaces.RdlElement("ColSpan", effectiveColSpan.ToString()));
+        }
+        
+        return RdlNamespaces.RdlElement("TablixCell",
+            RdlNamespaces.RdlElement("CellContents", cellContents.ToArray())
         );
     }
 
@@ -202,46 +259,17 @@ public class TablixGenerator(
         return [.. rows];
     }
 
-    private XElement CreateTablixCell(TableCell cell, int tablixId)
-    {
-        var content = GetCellContent(cell);
-        // Use unique name with tablixId to avoid conflicts across multiple Tablix
-        var uniqueName = $"Tablix{tablixId}_Cell_{cell.RowIndex}_{cell.ColumnIndex}";
-        
-        // Determine text alignment based on content and cell style
-        var textAlign = DetermineTextAlignment(content, cell);
-        
-        // Extract text style from cell content
-        var textStyle = ExtractTextStyle(cell);
-        
-        // Build CellContents with optional ColSpan
-        var cellContents = new List<object>
-        {
-            CreateStyledTextbox(
-                uniqueName,
-                content,
-                cell.Width / 72.0,
-                textAlign,
-                cell.Style,
-                textStyle)
-        };
-        
-        // Add ColSpan if cell spans multiple columns
-        if (cell.ColSpan > 1)
-        {
-            cellContents.Add(RdlNamespaces.RdlElement("ColSpan", cell.ColSpan.ToString()));
-        }
-        
-        return RdlNamespaces.RdlElement("TablixCell",
-            RdlNamespaces.RdlElement("CellContents", cellContents.ToArray())
-        );
-    }
-    
     /// <summary>
     /// Extracts text style from cell content, checking all runs for styling
     /// </summary>
     private TextStyle? ExtractTextStyle(TableCell cell)
     {
+        // Guard against null or empty content
+        if (cell.Content == null || cell.Content.Count == 0)
+        {
+            return null;
+        }
+        
         TextStyle? firstStyle = null;
         bool hasUnderline = false;
         bool hasBold = false;
@@ -249,10 +277,12 @@ public class TablixGenerator(
         
         foreach (var element in cell.Content)
         {
-            if (element is ParagraphElement para)
+            if (element is ParagraphElement para && para.Runs != null)
             {
                 foreach (var run in para.Runs)
                 {
+                    if (run == null) continue;
+                    
                     if (firstStyle == null && run.Style != null)
                     {
                         firstStyle = run.Style;
@@ -372,7 +402,7 @@ public class TablixGenerator(
             }
             if (!string.IsNullOrEmpty(textStyle.FontFamily))
             {
-                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontFamily", textStyle.FontFamily));
+                textRunStyleElements.Add(RdlNamespaces.RdlElement("FontFamily", NormalizeFontFamily(textStyle.FontFamily)));
             }
             if (textStyle.FontSize > 0)
             {
@@ -416,12 +446,78 @@ public class TablixGenerator(
             elements.Add(RdlNamespaces.RdlElement("Width", $"{border.Width}pt"));
         }
         
-        if (!string.IsNullOrEmpty(border.Color))
+        // Filter out invalid color values like "auto" which are valid in Word but not in RDLC
+        if (!string.IsNullOrEmpty(border.Color) && 
+            !border.Color.Equals("auto", StringComparison.OrdinalIgnoreCase))
         {
-            elements.Add(RdlNamespaces.RdlElement("Color", border.Color));
+            // Ensure color is in valid format (#RRGGBB or named color)
+            var color = NormalizeColor(border.Color);
+            if (!string.IsNullOrEmpty(color))
+            {
+                elements.Add(RdlNamespaces.RdlElement("Color", color));
+            }
         }
         
         return RdlNamespaces.RdlElement(borderName, elements.ToArray());
+    }
+    
+    /// <summary>
+    /// Normalizes color values to valid RDLC format
+    /// </summary>
+    private static string? NormalizeColor(string color)
+    {
+        if (string.IsNullOrEmpty(color))
+            return null;
+            
+        // Skip invalid/special values
+        if (color.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
+            color.Equals("none", StringComparison.OrdinalIgnoreCase))
+            return null;
+            
+        // If already has # prefix, return as-is
+        if (color.StartsWith('#'))
+            return color;
+            
+        // If it's a 6-digit hex without #, add it
+        if (color.Length == 6 && color.All(c => char.IsAsciiHexDigit(c)))
+            return $"#{color}";
+            
+        // Return as-is for named colors (Black, White, etc.)
+        return color;
+    }
+    
+    /// <summary>
+    /// Normalizes font family names to ensure they render correctly in RDLC.
+    /// RDLC only supports single font names, not CSS-style font fallback lists.
+    /// </summary>
+    private static string NormalizeFontFamily(string? fontFamily)
+    {
+        if (string.IsNullOrEmpty(fontFamily))
+            return "Microsoft YaHei"; // Default to a widely available Chinese font
+        
+        // RDLC requires a single font name, not a comma-separated list
+        // Map legacy or uncommon fonts to widely available alternatives
+        return fontFamily switch
+        {
+            // DFKai-SB (標楷體) - Traditional Chinese calligraphy font, may not be available
+            "DFKai-SB" or "標楷體" => "KaiTi",
+            // MingLiU variants - map to SimSun which is more widely available
+            "MingLiU" or "PMingLiU" or "MingLiU_HKSCS" => "SimSun",
+            // SimSun variants
+            "SimSun" or "NSimSun" or "宋体" => "SimSun",
+            // Other common Chinese fonts
+            "SimHei" or "黑体" => "SimHei",
+            "KaiTi" or "楷体" => "KaiTi",
+            "FangSong" or "仿宋" => "FangSong",
+            // Microsoft YaHei is the most reliable Chinese font on Windows
+            "Microsoft YaHei" or "微软雅黑" => "Microsoft YaHei",
+            // Western fonts - keep single font name
+            "Calibri" => "Calibri",
+            "Arial" => "Arial",
+            "Times New Roman" => "Times New Roman",
+            // Default: keep original font name (single value only)
+            _ => fontFamily.Contains(',') ? fontFamily.Split(',')[0].Trim() : fontFamily
+        };
     }
 
     private XElement CreateHeaderCell(string headerText)
@@ -489,17 +585,24 @@ public class TablixGenerator(
 
     private string GetCellContent(TableCell cell)
     {
-        if (cell.Content.Count == 0)
+        if (cell.Content == null || cell.Content.Count == 0)
         {
             return string.Empty;
         }
 
         // Extract text from first content element and sanitize for XML
         var first = cell.Content[0];
+        if (first == null)
+        {
+            return string.Empty;
+        }
+        
         var rawText = first switch
         {
-            TextElement text => text.Text,
-            ParagraphElement para => string.Join("", para.Runs.Select(r => r.Text)),
+            TextElement text => text.Text ?? string.Empty,
+            ParagraphElement para => para.Runs != null 
+                ? string.Join("", para.Runs.Where(r => r != null).Select(r => r.Text ?? string.Empty))
+                : string.Empty,
             _ => string.Empty
         };
         return RdlNamespaces.SanitizeXmlString(rawText);

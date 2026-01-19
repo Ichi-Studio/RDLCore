@@ -20,9 +20,14 @@ public class TextboxGenerator
     {
         var name = $"Textbox{++_textboxCounter}";
         var bounds = paragraph.Bounds.ToInches();
-        var text = string.Join("", paragraph.Runs.Select(r => r.Text));
+        var text = paragraph.Runs != null 
+            ? string.Join("", paragraph.Runs.Where(r => r != null).Select(r => r.Text ?? string.Empty))
+            : string.Empty;
 
         _logger.LogDebug("Creating textbox '{Name}' at ({Left}, {Top})", name, left, top);
+
+        // Get first run style safely
+        var firstRunStyle = paragraph.Runs?.FirstOrDefault()?.Style;
 
         return RdlNamespaces.RdlElement("Textbox",
             new XAttribute("Name", name),
@@ -34,7 +39,7 @@ public class TextboxGenerator
             RdlNamespaces.RdlElement("Left", $"{left:F5}in"),
             RdlNamespaces.RdlElement("Height", $"{bounds.Height:F5}in"),
             RdlNamespaces.RdlElement("Width", $"{bounds.Width:F5}in"),
-            CreateStyle(paragraph.Style, paragraph.Runs.FirstOrDefault()?.Style)
+            CreateStyle(paragraph.Style, firstRunStyle)
         );
     }
 
@@ -109,11 +114,38 @@ public class TextboxGenerator
 
     private XElement CreateParagraphs(ParagraphElement paragraph)
     {
-        var textRuns = paragraph.Runs.Select(run => 
-            RdlNamespaces.RdlElement("TextRun",
-                RdlNamespaces.RdlElement("Value", GetRunValue(run)),
-                CreateTextRunStyle(run.Style)
-            )).ToArray();
+        // Safely handle null or empty runs
+        if (paragraph.Runs == null || !paragraph.Runs.Any())
+        {
+            return RdlNamespaces.RdlElement("Paragraphs",
+                RdlNamespaces.RdlElement("Paragraph",
+                    RdlNamespaces.RdlElement("TextRuns",
+                        RdlNamespaces.RdlElement("TextRun",
+                            RdlNamespaces.RdlElement("Value", string.Empty),
+                            RdlNamespaces.RdlElement("Style")
+                        )
+                    ),
+                    CreateParagraphStyle(paragraph.Style)
+                )
+            );
+        }
+
+        var textRuns = paragraph.Runs
+            .Where(run => run != null)
+            .Select(run => 
+                RdlNamespaces.RdlElement("TextRun",
+                    RdlNamespaces.RdlElement("Value", GetRunValue(run)),
+                    CreateTextRunStyle(run.Style)
+                )).ToArray();
+
+        // Ensure at least one TextRun exists
+        if (textRuns.Length == 0)
+        {
+            textRuns = [RdlNamespaces.RdlElement("TextRun",
+                RdlNamespaces.RdlElement("Value", string.Empty),
+                RdlNamespaces.RdlElement("Style")
+            )];
+        }
 
         return RdlNamespaces.RdlElement("Paragraphs",
             RdlNamespaces.RdlElement("Paragraph",
@@ -141,7 +173,7 @@ public class TextboxGenerator
         {
             if (!string.IsNullOrEmpty(textStyle.FontFamily))
             {
-                styleElements.Add(RdlNamespaces.RdlElement("FontFamily", textStyle.FontFamily));
+                styleElements.Add(RdlNamespaces.RdlElement("FontFamily", NormalizeFontFamily(textStyle.FontFamily)));
             }
             
             styleElements.Add(RdlNamespaces.RdlElement("FontSize", $"{textStyle.FontSize}pt"));
@@ -181,7 +213,7 @@ public class TextboxGenerator
 
         if (!string.IsNullOrEmpty(style.FontFamily))
         {
-            elements.Add(RdlNamespaces.RdlElement("FontFamily", style.FontFamily));
+            elements.Add(RdlNamespaces.RdlElement("FontFamily", NormalizeFontFamily(style.FontFamily)));
         }
 
         elements.Add(RdlNamespaces.RdlElement("FontSize", $"{style.FontSize}pt"));
@@ -234,5 +266,39 @@ public class TextboxGenerator
             return color;
         }
         return $"#{color}";
+    }
+    
+    /// <summary>
+    /// Normalizes font family names to ensure they render correctly in RDLC.
+    /// RDLC only supports single font names, not CSS-style font fallback lists.
+    /// </summary>
+    private static string NormalizeFontFamily(string? fontFamily)
+    {
+        if (string.IsNullOrEmpty(fontFamily))
+            return "Microsoft YaHei"; // Default to a widely available Chinese font
+        
+        // RDLC requires a single font name, not a comma-separated list
+        // Map legacy or uncommon fonts to widely available alternatives
+        return fontFamily switch
+        {
+            // DFKai-SB (標楷體) - Traditional Chinese calligraphy font, may not be available
+            "DFKai-SB" or "標楷體" => "KaiTi",
+            // MingLiU variants - map to SimSun which is more widely available
+            "MingLiU" or "PMingLiU" or "MingLiU_HKSCS" => "SimSun",
+            // SimSun variants
+            "SimSun" or "NSimSun" or "宋体" => "SimSun",
+            // Other common Chinese fonts
+            "SimHei" or "黑体" => "SimHei",
+            "KaiTi" or "楷体" => "KaiTi",
+            "FangSong" or "仿宋" => "FangSong",
+            // Microsoft YaHei is the most reliable Chinese font on Windows
+            "Microsoft YaHei" or "微软雅黑" => "Microsoft YaHei",
+            // Western fonts - keep single font name
+            "Calibri" => "Calibri",
+            "Arial" => "Arial",
+            "Times New Roman" => "Times New Roman",
+            // Default: keep original font name (single value only)
+            _ => fontFamily.Contains(',') ? fontFamily.Split(',')[0].Trim() : fontFamily
+        };
     }
 }

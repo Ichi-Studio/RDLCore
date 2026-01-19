@@ -44,7 +44,9 @@ public class ConditionalAnalyzer(
         yield return branch;
 
         // Check if true/false values contain nested conditionals
-        if (branch.TrueValue.NodeType == AstNodeType.Conditional && branch.TrueValue.Children != null)
+        if (branch.TrueValue.NodeType == AstNodeType.Conditional && 
+            branch.TrueValue.Children != null && 
+            branch.TrueValue.Children.Count >= 2)
         {
             var nested = new ConditionalBranch(
                 Id: $"{branch.Id}_nested_true",
@@ -59,7 +61,9 @@ public class ConditionalAnalyzer(
             }
         }
 
-        if (branch.FalseValue?.NodeType == AstNodeType.Conditional && branch.FalseValue.Children != null)
+        if (branch.FalseValue?.NodeType == AstNodeType.Conditional && 
+            branch.FalseValue.Children != null && 
+            branch.FalseValue.Children.Count >= 2)
         {
             var nested = new ConditionalBranch(
                 Id: $"{branch.Id}_nested_false",
@@ -99,13 +103,15 @@ public class ConditionalAnalyzer(
 
     private string? GetTestedField(AbstractSyntaxTree condition)
     {
-        if (condition.NodeType != AstNodeType.BinaryOperation || condition.Children == null)
+        if (condition.NodeType != AstNodeType.BinaryOperation || 
+            condition.Children == null || 
+            condition.Children.Count == 0)
         {
             return null;
         }
 
         var left = condition.Children[0];
-        if (left.NodeType == AstNodeType.FieldReference)
+        if (left?.NodeType == AstNodeType.FieldReference)
         {
             return left.Value?.ToString();
         }

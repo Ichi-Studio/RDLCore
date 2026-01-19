@@ -188,3 +188,8 @@ appsettings.Local.json
 /src/RdlCore.Parsing/bin/Debug/net10.0/RdlCore.Parsing.deps.json
 /src/RdlCore.WebApi/bin/Debug/net10.0/RdlCore.WebApi.deps.json
 /src/RdlCore.Rendering/bin/Debug/net10.0/RdlCore.Rendering.deps.json
+src/RdlCore.Cli/bin/Debug/net10.0/axiom-rdl.deps.json
+src/RdlCore.Cli/bin/Debug/net10.0/axiom-rdl.deps.json
+src/RdlCore.Cli/bin/Debug/net10.0/axiom-rdl.deps.json
+tests/RdlCore.Generation.Tests/bin/Debug/net10.0/RdlCore.Generation.Tests.deps.json
+tests/RdlCore.Integration.Tests/bin/Debug/net10.0/RdlCore.Integration.Tests.deps.json

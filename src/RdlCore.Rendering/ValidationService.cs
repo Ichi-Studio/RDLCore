@@ -3,20 +3,23 @@ namespace RdlCore.Rendering;
 /// <summary>
 /// Implementation of validation service
 /// </summary>
-public class ValidationService : IValidationService
+internal sealed class ValidationService : IValidationService
 {
     private readonly ILogger<ValidationService> _logger;
     private readonly VisualComparer _visualComparer;
     private readonly ILogicTranslationService _translationService;
+    private readonly IRdlReportRenderer _reportRenderer;
 
     public ValidationService(
         ILogger<ValidationService> logger,
         VisualComparer visualComparer,
-        ILogicTranslationService translationService)
+        ILogicTranslationService translationService,
+        IRdlReportRenderer reportRenderer)
     {
         _logger = logger;
         _visualComparer = visualComparer;
         _translationService = translationService;
+        _reportRenderer = reportRenderer;
     }
 
     /// <inheritdoc />
@@ -128,14 +131,17 @@ public class ValidationService : IValidationService
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Rendering RDL to PDF");
+        return await Task.FromResult(_reportRenderer.Render(rdlDocument, dataSet, "PDF"));
+    }
 
-        // Note: Full PDF rendering requires ReportViewerCore.NETCore
-        // This is a placeholder that returns the XML as bytes
-        _logger.LogWarning("PDF rendering requires ReportViewerCore. Returning RDL XML as placeholder.");
-
-        using var ms = new MemoryStream();
-        rdlDocument.Save(ms);
-        return ms.ToArray();
+    /// <inheritdoc />
+    public async Task<byte[]> RenderToWordOpenXmlAsync(
+        XDocument rdlDocument,
+        System.Data.DataSet dataSet,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Rendering RDL to WordOpenXml");
+        return await Task.FromResult(_reportRenderer.Render(rdlDocument, dataSet, "WORDOPENXML"));
     }
 
     private void ValidateRequiredElements(XElement root, List<ValidationMessage> errors)

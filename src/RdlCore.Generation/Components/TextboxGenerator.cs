@@ -6,11 +6,13 @@ namespace RdlCore.Generation.Components;
 public class TextboxGenerator
 {
     private readonly ILogger<TextboxGenerator> _logger;
+    private readonly AxiomRdlCoreOptions _options;
     private int _textboxCounter;
 
-    public TextboxGenerator(ILogger<TextboxGenerator> logger)
+    public TextboxGenerator(ILogger<TextboxGenerator> logger, IOptions<AxiomRdlCoreOptions> options)
     {
         _logger = logger;
+        _options = options.Value;
     }
 
     /// <summary>
@@ -272,10 +274,10 @@ public class TextboxGenerator
     /// Normalizes font family names to ensure they render correctly in RDLC.
     /// RDLC only supports single font names, not CSS-style font fallback lists.
     /// </summary>
-    private static string NormalizeFontFamily(string? fontFamily)
+    private string NormalizeFontFamily(string? fontFamily)
     {
         if (string.IsNullOrEmpty(fontFamily))
-            return "Microsoft YaHei"; // Default to a widely available Chinese font
+            return "Microsoft YaHei";
         
         // RDLC requires a single font name, not a comma-separated list
         // Map legacy or uncommon fonts to widely available alternatives

@@ -38,15 +38,21 @@ public class SchemaSynthesisService : ISchemaSynthesisService
 
         // Create base document
         var doc = _documentBuilder.CreateEmptyDocument("ReportData");
+        ApplyPageSetup(doc, documentStructure.Pages.FirstOrDefault());
 
         // Collect all images for EmbeddedImages section
         var embeddedImages = new List<(string name, string mimeType, byte[] data)>();
+        var embeddedImageNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         
         // Collect header images separately
         var headerImages = new List<ImageElement>();
+        var headerImageIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         // Track position for elements
         double currentTop = 0;
+
+        var stackPages = documentStructure.Pages.Count > 1 && documentStructure.Metadata.PageCount > 1;
+        var accumulatedTopOffsetPoints = 0.0;
 
         // Process each page
         foreach (var page in documentStructure.Pages)
@@ -58,22 +64,45 @@ public class SchemaSynthesisService : ISchemaSynthesisService
                 if (element is ImageElement img)
                 {
                     var imageName = $"Image_{img.Id}";
-                    embeddedImages.Add((imageName, img.MimeType, img.ImageData));
+                    if (embeddedImageNames.Add(imageName))
+                    {
+                        embeddedImages.Add((imageName, img.MimeType, img.ImageData));
+                    }
                     
                     // Check if this is a header image
                     if (img.Id.StartsWith("header_img_"))
                     {
-                        headerImages.Add(img);
+                        if (headerImageIds.Add(img.Id))
+                        {
+                            headerImages.Add(img);
+                        }
                         continue; // Don't add to body, will be added to PageHeader
                     }
                 }
 
-                var rdlElement = await GenerateElementAsync(element, logic, cancellationToken);
+                var effectiveElement = stackPages ? ShiftElementDown(element, accumulatedTopOffsetPoints) : element;
+                var rdlElement = await GenerateElementAsync(effectiveElement, logic, cancellationToken);
                 if (rdlElement != null)
                 {
                     _documentBuilder.AddReportItem(doc, rdlElement);
                 }
             }
+
+            if (stackPages)
+            {
+                accumulatedTopOffsetPoints += page.Height;
+            }
+        }
+
+        if (stackPages)
+        {
+            var totalHeightInches = accumulatedTopOffsetPoints / 72.0;
+            var reportSection = doc.Root?
+                .Element(RdlNamespaces.Rdl + "ReportSections")?
+                .Element(RdlNamespaces.Rdl + "ReportSection");
+
+            var body = reportSection?.Element(RdlNamespaces.Rdl + "Body");
+            body?.SetElementValue(RdlNamespaces.Rdl + "Height", $"{totalHeightInches:F5}in");
         }
 
         // Add EmbeddedImages section if there are any images
@@ -87,6 +116,54 @@ public class SchemaSynthesisService : ISchemaSynthesisService
 
         _logger.LogInformation("RDL document generation complete");
         return doc;
+    }
+
+    private void ApplyPageSetup(XDocument doc, PageElement? page)
+    {
+        if (page == null)
+        {
+            return;
+        }
+
+        var pageWidthInches = page.Width / 72.0;
+        var pageHeightInches = page.Height / 72.0;
+
+        if (pageWidthInches <= 0 || pageHeightInches <= 0)
+        {
+            return;
+        }
+
+        var gen = _options.Generation;
+        var leftMargin = MarginOptions.ParseInches(gen.DefaultMargins.Left);
+        var rightMargin = MarginOptions.ParseInches(gen.DefaultMargins.Right);
+
+        var printableWidth = Math.Max(0.1, pageWidthInches - leftMargin - rightMargin);
+
+        var reportSection = doc.Root?
+            .Element(RdlNamespaces.Rdl + "ReportSections")?
+            .Element(RdlNamespaces.Rdl + "ReportSection");
+
+        var pageElement = reportSection?.Element(RdlNamespaces.Rdl + "Page");
+        pageElement?.SetElementValue(RdlNamespaces.Rdl + "PageWidth", $"{pageWidthInches:F5}in");
+        pageElement?.SetElementValue(RdlNamespaces.Rdl + "PageHeight", $"{pageHeightInches:F5}in");
+
+        reportSection?.SetElementValue(RdlNamespaces.Rdl + "Width", $"{printableWidth:F5}in");
+    }
+
+    private static ContentElement ShiftElementDown(ContentElement element, double topOffsetPoints)
+    {
+        if (topOffsetPoints == 0)
+        {
+            return element;
+        }
+
+        return element switch
+        {
+            ParagraphElement p => p with { Bounds = p.Bounds with { Top = p.Bounds.Top + topOffsetPoints } },
+            TableElement t => t with { Bounds = t.Bounds with { Top = t.Bounds.Top + topOffsetPoints } },
+            ImageElement i => i with { Bounds = i.Bounds with { Top = i.Bounds.Top + topOffsetPoints } },
+            _ => element
+        };
     }
 
     private void AddEmbeddedImages(XDocument doc, List<(string name, string mimeType, byte[] data)> images)
@@ -137,8 +214,7 @@ public class SchemaSynthesisService : ISchemaSynthesisService
     {
         var documents = new List<RdlDocumentInfo>();
 
-        // If only one page, generate single document
-        if (documentStructure.Pages.Count <= 1)
+        if (documentStructure.Pages.Count <= 1 || documentStructure.Metadata.PageCount > 1)
         {
             var singleDoc = await GenerateRdlDocumentAsync(documentStructure, logic, cancellationToken);
             documents.Add(new RdlDocumentInfo("Report_1", singleDoc, 1));
@@ -221,13 +297,15 @@ public class SchemaSynthesisService : ISchemaSynthesisService
         var result = element switch
         {
             ParagraphElement para => await CreateTextboxAsync(para, cancellationToken),
-            TableElement table => CreateTableWithExtractedDateRow(table),
+            TableElement table => _options.Generation.StrictFidelity
+                ? _tablixGenerator.CreateTablix(table, null, table.Bounds.ToInches().Left, table.Bounds.ToInches().Top)
+                : CreateTableWithExtractedDateRow(table),
             ImageElement img => CreateImage(img),
             _ => null
         };
         
         // Ensure element fits within printable width
-        if (result != null)
+        if (result != null && !_options.Generation.StrictFidelity)
         {
             EnsureElementFitsWithinPrintableWidth(result);
         }

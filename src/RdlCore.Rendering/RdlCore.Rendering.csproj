@@ -6,6 +6,10 @@
     <PackageId>RdlCore.Rendering</PackageId>
     <Description>Rendering and validation module for RDLC reports</Description>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <DocnetRuntime Condition=" '$([MSBuild]::IsOsPlatform(Windows))' ">win-x64</DocnetRuntime>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RdlCore.Generation\RdlCore.Generation.csproj" />
@@ -14,6 +18,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Docnet.Core" />
+    <PackageReference Include="ReportViewerCore.NETCore" />
     <PackageReference Include="SkiaSharp" />
   </ItemGroup>
 

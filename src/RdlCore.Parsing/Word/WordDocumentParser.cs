@@ -1031,9 +1031,13 @@ public class WordDocumentParser : IDocumentParser
     private TextStyle ExtractTextStyle(Run run)
     {
         var props = run.RunProperties;
+        var text = GetRunText(run);
+        var runFonts = props?.RunFonts;
+
+        var fontFamily = ResolveFontFamily(runFonts, text);
         
         return new TextStyle(
-            FontFamily: props?.RunFonts?.Ascii?.Value ?? "Calibri",
+            FontFamily: fontFamily,
             FontSize: props?.FontSize?.Val?.Value != null 
                 ? double.Parse(props.FontSize.Val.Value) / 2 
                 : 11,
@@ -1044,6 +1048,41 @@ public class WordDocumentParser : IDocumentParser
             BackgroundColor: props?.Shading?.Fill?.Value,
             HorizontalAlignment: null,
             VerticalAlignment: null);
+    }
+
+    private static string ResolveFontFamily(RunFonts? runFonts, string text)
+    {
+        if (ContainsCjk(text))
+        {
+            return runFonts?.EastAsia?.Value
+                ?? runFonts?.Ascii?.Value
+                ?? runFonts?.HighAnsi?.Value
+                ?? "Microsoft YaHei";
+        }
+
+        return runFonts?.Ascii?.Value
+            ?? runFonts?.HighAnsi?.Value
+            ?? runFonts?.EastAsia?.Value
+            ?? "Calibri";
+    }
+
+    private static bool ContainsCjk(string text)
+    {
+        foreach (var ch in text)
+        {
+            var code = (int)ch;
+            if (code is
+                (>= 0x4E00 and <= 0x9FFF) or
+                (>= 0x3400 and <= 0x4DBF) or
+                (>= 0xF900 and <= 0xFAFF) or
+                (>= 0x3040 and <= 0x30FF) or
+                (>= 0xAC00 and <= 0xD7AF))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private ParagraphStyle ExtractParagraphStyle(Paragraph para)
@@ -1194,13 +1233,31 @@ public class WordDocumentParser : IDocumentParser
     {
         if (props == null) return null;
 
+        string? verticalAlignment = null;
+        var vAlignValue = props.TableCellVerticalAlignment?.Val?.Value;
+        if (vAlignValue != null)
+        {
+            if (vAlignValue.Equals(TableVerticalAlignmentValues.Top))
+            {
+                verticalAlignment = "Top";
+            }
+            else if (vAlignValue.Equals(TableVerticalAlignmentValues.Center))
+            {
+                verticalAlignment = "Center";
+            }
+            else if (vAlignValue.Equals(TableVerticalAlignmentValues.Bottom))
+            {
+                verticalAlignment = "Bottom";
+            }
+        }
+
         return new TableCellStyle(
             BackgroundColor: props.Shading?.Fill?.Value,
             TopBorder: ExtractBorder(props.TableCellBorders?.TopBorder),
             BottomBorder: ExtractBorder(props.TableCellBorders?.BottomBorder),
             LeftBorder: ExtractBorder(props.TableCellBorders?.LeftBorder),
             RightBorder: ExtractBorder(props.TableCellBorders?.RightBorder),
-            VerticalAlignment: props.TableCellVerticalAlignment?.Val?.Value.ToString(),
+            VerticalAlignment: verticalAlignment,
             Padding: null);
     }
 

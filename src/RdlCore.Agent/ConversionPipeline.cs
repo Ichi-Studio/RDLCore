@@ -63,6 +63,7 @@ public class ConversionPipeline : IConversionPipelineService
                 async ct => await _perceptionService.AnalyzeAsync(
                     request.DocumentStream,
                     request.DocumentType ?? DocumentType.Unknown,
+                    request.Options,
                     ct),
                 cancellationToken);
 

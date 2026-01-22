@@ -27,6 +27,7 @@ public class DocumentPerceptionService : IDocumentPerceptionService, IPageAnalyz
     public async Task<DocumentStructureModel> AnalyzeAsync(
         Stream documentStream, 
         DocumentType type,
+        ConversionOptions options,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting document analysis for type: {Type}", type);
@@ -42,8 +43,9 @@ public class DocumentPerceptionService : IDocumentPerceptionService, IPageAnalyz
         var parser = _parsers.FirstOrDefault(p => p.SupportedType == type)
             ?? throw new DocumentParsingException($"No parser available for document type: {type}", type);
 
-        // Parse document
-        var structure = await parser.ParseAsync(documentStream, cancellationToken);
+        var structure = parser is IConfigurableDocumentParser configurable
+            ? await configurable.ParseAsync(documentStream, options, cancellationToken)
+            : await parser.ParseAsync(documentStream, cancellationToken);
 
         _logger.LogInformation(
             "Document analysis complete: {Pages} pages, {Elements} logical elements",
@@ -111,7 +113,14 @@ public class DocumentPerceptionService : IDocumentPerceptionService, IPageAnalyz
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var type = await _typeDetector.DetectTypeAsync(documentStream, cancellationToken);
-        var structure = await AnalyzeAsync(documentStream, type, cancellationToken);
+        var defaultOptions = new ConversionOptions(
+            DataSetName: null,
+            SchemaPath: null,
+            StyleTemplate: null,
+            ForceOverwrite: false,
+            VerboseOutput: false,
+            DryRun: false);
+        var structure = await AnalyzeAsync(documentStream, type, defaultOptions, cancellationToken);
 
         foreach (var page in structure.Pages)
         {

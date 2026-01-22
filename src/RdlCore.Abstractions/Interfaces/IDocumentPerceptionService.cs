@@ -10,11 +10,13 @@ public interface IDocumentPerceptionService
     /// </summary>
     /// <param name="documentStream">要分析的文档流</param>
     /// <param name="type">文档类型</param>
+    /// <param name="options">转换选项</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>文档结构模型</returns>
     Task<DocumentStructureModel> AnalyzeAsync(
         Stream documentStream, 
         DocumentType type,
+        ConversionOptions options,
         CancellationToken cancellationToken = default);
 
     /// <summary>

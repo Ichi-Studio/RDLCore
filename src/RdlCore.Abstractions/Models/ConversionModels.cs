@@ -198,6 +198,11 @@ public record GenerationOptions
     
     /// <summary>最大图像分辨率 (DPI)</summary>
     public int MaxImageResolution { get; init; } = 300;
+
+    /// <summary>
+    /// 严格保真模式：尽可能避免任何“自适应/纠正/字体替换”等启发式行为
+    /// </summary>
+    public bool StrictFidelity { get; init; } = false;
     
     /// <summary>
     /// 获取可打印宽度（页面宽度 - 左边距 - 右边距）

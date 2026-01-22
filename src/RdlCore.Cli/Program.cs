@@ -13,24 +13,30 @@ public class Program
             new ValidateCommand()
         };
 
-        // Add version option
-        rootCommand.AddGlobalOption(new Option<bool>("--version", "Show version information"));
-
         return await rootCommand.InvokeAsync(args);
     }
 
     /// <summary>
     /// Creates the DI service provider
     /// </summary>
-    public static IServiceProvider CreateServices(bool verbose = false)
+    public static IServiceProvider CreateServices(bool verbose = false, bool strictFidelity = false)
     {
         var services = new ServiceCollection();
 
         // Configuration
-        var configuration = new ConfigurationBuilder()
+        var configBuilder = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
+            .AddJsonFile("appsettings.json", optional: true);
+
+        if (strictFidelity)
+        {
+            configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AxiomRdlCore:Generation:StrictFidelity"] = "true"
+            });
+        }
+
+        var configuration = configBuilder.Build();
 
         services.Configure<AxiomRdlCoreOptions>(configuration.GetSection("AxiomRdlCore"));
 

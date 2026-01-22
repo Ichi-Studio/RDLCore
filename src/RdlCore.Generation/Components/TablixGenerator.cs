@@ -5,9 +5,11 @@ namespace RdlCore.Generation.Components;
 /// </summary>
 public class TablixGenerator(
     ILogger<TablixGenerator> logger,
-    TextboxGenerator textboxGenerator)
+    TextboxGenerator textboxGenerator,
+    IOptions<AxiomRdlCoreOptions> options)
 {
     private int _tablixCounter;
+    private readonly AxiomRdlCoreOptions _options = options.Value;
 
     /// <summary>
     /// Creates a Tablix element from a table
@@ -70,12 +72,97 @@ public class TablixGenerator(
     private XElement CreateTablixBody(TableElement table, int tablixId, int expectedColumnCount)
     {
         var columns = CreateTablixColumnsFromTable(table, expectedColumnCount);
-        var rows = table.Rows.Select(row => CreateTablixRow(row, tablixId, expectedColumnCount)).ToArray();
+        var rows = CreateTablixRowsFromGrid(table, tablixId, expectedColumnCount);
 
         return RdlNamespaces.RdlElement("TablixBody",
             columns,
             RdlNamespaces.RdlElement("TablixRows", rows)
         );
+    }
+
+    private XElement[] CreateTablixRowsFromGrid(TableElement table, int tablixId, int expectedColumnCount)
+    {
+        var rowCount = table.Rows.Count;
+        if (rowCount == 0 || expectedColumnCount == 0)
+        {
+            return Array.Empty<XElement>();
+        }
+
+        var starts = new TableCell?[rowCount, expectedColumnCount];
+        var covered = new bool[rowCount, expectedColumnCount];
+
+        foreach (var row in table.Rows)
+        {
+            foreach (var cell in row.Cells)
+            {
+                if (cell == null) continue;
+
+                var startRow = cell.RowIndex;
+                var startCol = cell.ColumnIndex;
+
+                if (startRow < 0 || startRow >= rowCount || startCol < 0 || startCol >= expectedColumnCount)
+                {
+                    continue;
+                }
+
+                starts[startRow, startCol] = cell;
+
+                var rowSpan = Math.Max(1, cell.RowSpan);
+                var colSpan = Math.Max(1, cell.ColSpan);
+
+                var maxRow = Math.Min(rowCount, startRow + rowSpan);
+                var maxCol = Math.Min(expectedColumnCount, startCol + colSpan);
+
+                for (var r = startRow; r < maxRow; r++)
+                {
+                    for (var c = startCol; c < maxCol; c++)
+                    {
+                        if (r == startRow && c == startCol) continue;
+                        covered[r, c] = true;
+                    }
+                }
+            }
+        }
+
+        var rows = new List<XElement>(rowCount);
+        for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
+        {
+            var cells = new List<XElement>(expectedColumnCount);
+
+            for (var colPos = 0; colPos < expectedColumnCount; colPos++)
+            {
+                if (covered[rowIndex, colPos])
+                {
+                    cells.Add(RdlNamespaces.RdlElement("TablixCell"));
+                    continue;
+                }
+
+                var cell = starts[rowIndex, colPos];
+                if (cell == null)
+                {
+                    cells.Add(CreateEmptyTablixCell(tablixId, rowIndex, colPos));
+                    continue;
+                }
+
+                var effectiveColSpan = Math.Min(Math.Max(1, cell.ColSpan), expectedColumnCount - colPos);
+                var effectiveRowSpan = Math.Min(Math.Max(1, cell.RowSpan), rowCount - rowIndex);
+
+                cells.Add(CreateTablixCellWithSpan(cell, tablixId, effectiveColSpan, effectiveRowSpan));
+
+                for (var span = 1; span < effectiveColSpan; span++)
+                {
+                    cells.Add(RdlNamespaces.RdlElement("TablixCell"));
+                    colPos++;
+                }
+            }
+
+            rows.Add(RdlNamespaces.RdlElement("TablixRow",
+                RdlNamespaces.RdlElement("Height", $"{table.Rows[rowIndex].Height / 72.0:F5}in"),
+                RdlNamespaces.RdlElement("TablixCells", cells.ToArray())
+            ));
+        }
+
+        return rows.ToArray();
     }
 
     private XElement CreateTablixColumnsFromTable(TableElement table, int expectedColumnCount)
@@ -184,11 +271,16 @@ public class TablixGenerator(
     /// </summary>
     private XElement CreateTablixCellWithColSpan(TableCell cell, int tablixId, int effectiveColSpan)
     {
+        return CreateTablixCellWithSpan(cell, tablixId, effectiveColSpan, 1);
+    }
+
+    private XElement CreateTablixCellWithSpan(TableCell cell, int tablixId, int effectiveColSpan, int effectiveRowSpan)
+    {
         var content = GetCellContent(cell);
         var uniqueName = $"Tablix{tablixId}_Cell_{cell.RowIndex}_{cell.ColumnIndex}";
         var textAlign = DetermineTextAlignment(content, cell);
         var textStyle = ExtractTextStyle(cell);
-        
+
         var cellContents = new List<object>
         {
             CreateStyledTextbox(
@@ -199,13 +291,17 @@ public class TablixGenerator(
                 cell.Style,
                 textStyle)
         };
-        
-        // Add ColSpan only if greater than 1
+
         if (effectiveColSpan > 1)
         {
             cellContents.Add(RdlNamespaces.RdlElement("ColSpan", effectiveColSpan.ToString()));
         }
-        
+
+        if (effectiveRowSpan > 1)
+        {
+            cellContents.Add(RdlNamespaces.RdlElement("RowSpan", effectiveRowSpan.ToString()));
+        }
+
         return RdlNamespaces.RdlElement("TablixCell",
             RdlNamespaces.RdlElement("CellContents", cellContents.ToArray())
         );
@@ -364,6 +460,21 @@ public class TablixGenerator(
             {
                 textboxStyleElements.Add(RdlNamespaces.RdlElement("BackgroundColor", cellStyle.BackgroundColor));
             }
+
+            if (!string.IsNullOrWhiteSpace(cellStyle.VerticalAlignment))
+            {
+                var align = cellStyle.VerticalAlignment.Trim();
+                var normalized = align.Equals("Center", StringComparison.OrdinalIgnoreCase)
+                    ? "Middle"
+                    : align.Equals("Top", StringComparison.OrdinalIgnoreCase) ? "Top"
+                    : align.Equals("Bottom", StringComparison.OrdinalIgnoreCase) ? "Bottom"
+                    : align;
+
+                if (normalized is "Top" or "Middle" or "Bottom")
+                {
+                    textboxStyleElements.Add(RdlNamespaces.RdlElement("VerticalAlign", normalized));
+                }
+            }
             
             // Apply cell borders
             if (cellStyle.TopBorder != null)
@@ -490,10 +601,10 @@ public class TablixGenerator(
     /// Normalizes font family names to ensure they render correctly in RDLC.
     /// RDLC only supports single font names, not CSS-style font fallback lists.
     /// </summary>
-    private static string NormalizeFontFamily(string? fontFamily)
+    private string NormalizeFontFamily(string? fontFamily)
     {
         if (string.IsNullOrEmpty(fontFamily))
-            return "Microsoft YaHei"; // Default to a widely available Chinese font
+            return "Microsoft YaHei";
         
         // RDLC requires a single font name, not a comma-separated list
         // Map legacy or uncommon fonts to widely available alternatives

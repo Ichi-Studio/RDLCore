@@ -43,13 +43,13 @@ public class ConvertController(
         }
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (extension != ".docx" && extension != ".pdf")
+        if (extension != ".docx" && extension != ".pdf" && extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".bmp" && extension != ".tiff" && extension != ".tif")
         {
             return BadRequest(new ConvertResponse
             {
                 Success = false,
                 Message = $"不支持的文件格式: {extension}",
-                Errors = ["仅支持 .docx 和 .pdf 格式"]
+                Errors = ["仅支持 .docx、.pdf 与常见图片格式"]
             });
         }
 
@@ -63,9 +63,16 @@ public class ConvertController(
             await stream.CopyToAsync(memoryStream, cancellationToken);
             memoryStream.Position = 0;
 
+            var docType = extension switch
+            {
+                ".docx" => RdlCore.Abstractions.Enums.DocumentType.Word,
+                ".pdf" => RdlCore.Abstractions.Enums.DocumentType.Pdf,
+                _ => RdlCore.Abstractions.Enums.DocumentType.Image
+            };
+
             var conversionRequest = new ConversionRequest(
                 DocumentStream: memoryStream,
-                DocumentType: extension == ".docx" ? RdlCore.Abstractions.Enums.DocumentType.Word : RdlCore.Abstractions.Enums.DocumentType.Pdf,
+                DocumentType: docType,
                 OutputPath: null,
                 Options: new ConversionOptions(
                     DataSetName: request.DataSetName,
@@ -97,8 +104,8 @@ public class ConvertController(
                     {
                         FileName = file.FileName,
                         FileSizeBytes = file.Length,
-                        DocumentType = extension == ".docx" ? "Word (OpenXML)" : "PDF",
-                        PageCount = 1
+                        DocumentType = docType.ToString(),
+                        PageCount = result.RdlDocument == null ? 0 : 1
                     },
                     Statistics = new ConversionStatistics
                     {
@@ -163,7 +170,7 @@ public class ConvertController(
         }
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (extension != ".docx" && extension != ".pdf")
+        if (extension != ".docx" && extension != ".pdf" && extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".bmp" && extension != ".tiff" && extension != ".tif")
         {
             return BadRequest(new AnalyzeResponse
             {
@@ -179,8 +186,20 @@ public class ConvertController(
             await stream.CopyToAsync(memoryStream, cancellationToken);
             memoryStream.Position = 0;
 
-            var docType = extension == ".docx" ? RdlCore.Abstractions.Enums.DocumentType.Word : RdlCore.Abstractions.Enums.DocumentType.Pdf;
-            var structure = await perceptionService.AnalyzeAsync(memoryStream, docType, cancellationToken);
+            var docType = extension switch
+            {
+                ".docx" => RdlCore.Abstractions.Enums.DocumentType.Word,
+                ".pdf" => RdlCore.Abstractions.Enums.DocumentType.Pdf,
+                _ => RdlCore.Abstractions.Enums.DocumentType.Image
+            };
+            var defaultOptions = new ConversionOptions(
+                DataSetName: null,
+                SchemaPath: null,
+                StyleTemplate: null,
+                ForceOverwrite: true,
+                VerboseOutput: false,
+                DryRun: false);
+            var structure = await perceptionService.AnalyzeAsync(memoryStream, docType, defaultOptions, cancellationToken);
 
             memoryStream.Position = 0;
             var logicResult = await decompositionService.ExtractFieldCodesAsync(structure, cancellationToken);
@@ -220,7 +239,7 @@ public class ConvertController(
                 {
                     FileName = file.FileName,
                     FileSizeBytes = file.Length,
-                    DocumentType = extension == ".docx" ? "Word (OpenXML)" : "PDF",
+                    DocumentType = docType.ToString(),
                     PageCount = structure.Pages.Count
                 },
                 Elements = elements,
@@ -265,7 +284,7 @@ public class ConvertController(
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-        if (extension != ".docx" && extension != ".pdf")
+        if (extension != ".docx" && extension != ".pdf" && extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".bmp" && extension != ".tiff" && extension != ".tif")
         {
             return BadRequest(new ConvertResponse
             {
@@ -288,9 +307,16 @@ public class ConvertController(
 
             memoryStream.Position = 0;
 
+            var docType = extension switch
+            {
+                ".docx" => DocumentType.Word,
+                ".pdf" => DocumentType.Pdf,
+                _ => DocumentType.Image
+            };
+
             var conversionRequest = new ConversionRequest(
                 DocumentStream: memoryStream,
-                DocumentType: extension == ".docx" ? DocumentType.Word : DocumentType.Pdf,
+                DocumentType: docType,
                 OutputPath: null,
                 Options: new (
                     DataSetName: dataSetName,

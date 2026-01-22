@@ -48,4 +48,16 @@ public interface IValidationService
         XDocument rdlDocument, 
         System.Data.DataSet dataSet,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 将 RDL 文档渲染为可编辑的 Word (WordOpenXml)
+    /// </summary>
+    /// <param name="rdlDocument">要渲染的 RDL 文档</param>
+    /// <param name="dataSet">要使用的数据集</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>渲染的 Word 字节</returns>
+    Task<byte[]> RenderToWordOpenXmlAsync(
+        XDocument rdlDocument,
+        System.Data.DataSet dataSet,
+        CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,6 @@
 using RdlCore.Parsing.Common;
+using RdlCore.Parsing.Image;
+using RdlCore.Parsing.Ocr;
 using RdlCore.Parsing.Word;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +26,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DocBinaryConverter>();
         services.AddSingleton<IDocumentParser, WordDocumentParser>();
 
+        services.AddSingleton<IOcrService, PaddleOcrService>();
+        services.AddSingleton<IDocumentParser, ImageDocumentParser>();
 
         // Main perception service
         services.AddSingleton<IDocumentPerceptionService, DocumentPerceptionService>();

@@ -1,3 +1,5 @@
+using RdlCore.Rendering.Word;
+
 namespace RdlCore.Rendering;
 
 /// <summary>
@@ -13,6 +15,11 @@ public static class ServiceCollectionExtensions
         // Validation services
         services.AddSingleton<SsimCalculator>();
         services.AddSingleton<VisualComparer>();
+        services.AddSingleton<IRdlReportRenderer, RdlReportRenderer>();
+        services.AddSingleton<IPdfRasterizer, DocnetPdfRasterizer>();
+        services.AddSingleton<IVisualDiffService, VisualDiffService>();
+        services.AddSingleton<IWordReportService, WordReportService>();
+        services.AddSingleton<IWordToPdfConverter, WordToPdfConverter>();
 
         // Main service
         services.AddSingleton<IValidationService, ValidationService>();

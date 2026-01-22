@@ -1,3 +1,7 @@
+using System.Data;
+using System.Xml.Linq;
+using RdlCore.Generation.Schema;
+
 namespace RdlCore.Cli.Commands;
 
 /// <summary>
@@ -14,6 +18,12 @@ public class ConvertCommand : Command
     private readonly Option<bool> _ocrOption;
     private readonly Option<string?> _ocrLanguageOption;
     private readonly Option<double> _ocrConfidenceOption;
+    private readonly Option<bool> _emitWordOption;
+    private readonly Option<bool> _emitPdfOption;
+    private readonly Option<bool> _verifyVisualOption;
+    private readonly Option<int> _dpiOption;
+    private readonly Option<string?> _artifactsDirOption;
+    private readonly Option<bool> _strictFidelityOption;
 
     public ConvertCommand() : base("convert", "Convert a document to RDLC format")
     {
@@ -29,6 +39,13 @@ public class ConvertCommand : Command
         _ocrLanguageOption = new Option<string?>(["--ocr-lang", "-l"], () => "en", "OCR language code (e.g., 'en', 'zh-Hans', 'ja')");
         _ocrConfidenceOption = new Option<double>("--ocr-confidence", () => 0.8, "Minimum OCR confidence threshold (0.0-1.0)");
 
+        _emitWordOption = new Option<bool>("--emit-word", "Also output an editable Word report (.docx)");
+        _emitPdfOption = new Option<bool>("--emit-pdf", "Also output a PDF report for verification");
+        _verifyVisualOption = new Option<bool>("--verify-visual", "Generate pixel-level visual diff report (Word->PDF baseline vs RDLC->PDF)");
+        _dpiOption = new Option<int>("--dpi", () => 300, "Rasterization DPI used for pixel-level verification (default: 300)");
+        _artifactsDirOption = new Option<string?>("--artifacts-dir", "Directory for extra outputs (docx/pdf/diff report). Defaults to output directory.");
+        _strictFidelityOption = new Option<bool>("--strict-fidelity", "Enable strict fidelity mode (disable heuristic adjustments in generation)");
+
         AddArgument(_inputArg);
         AddOption(_outputOption);
         AddOption(_datasetOption);
@@ -38,6 +55,12 @@ public class ConvertCommand : Command
         AddOption(_ocrOption);
         AddOption(_ocrLanguageOption);
         AddOption(_ocrConfidenceOption);
+        AddOption(_emitWordOption);
+        AddOption(_emitPdfOption);
+        AddOption(_verifyVisualOption);
+        AddOption(_dpiOption);
+        AddOption(_artifactsDirOption);
+        AddOption(_strictFidelityOption);
 
         this.SetHandler(ExecuteAsync);
     }
@@ -53,7 +76,14 @@ public class ConvertCommand : Command
         var ocrEnabled = context.ParseResult.GetValueForOption(_ocrOption);
         var ocrLanguage = context.ParseResult.GetValueForOption(_ocrLanguageOption);
         var ocrConfidence = context.ParseResult.GetValueForOption(_ocrConfidenceOption);
-        var services = Program.CreateServices(verbose);
+        var emitWord = context.ParseResult.GetValueForOption(_emitWordOption);
+        var emitPdf = context.ParseResult.GetValueForOption(_emitPdfOption);
+        var verifyVisual = context.ParseResult.GetValueForOption(_verifyVisualOption);
+        var dpi = context.ParseResult.GetValueForOption(_dpiOption);
+        var artifactsDir = context.ParseResult.GetValueForOption(_artifactsDirOption);
+        var strictFidelity = context.ParseResult.GetValueForOption(_strictFidelityOption);
+
+        var services = Program.CreateServices(verbose, strictFidelity);
         var pipeline = services.GetRequiredService<IConversionPipelineService>();
         var logger = services.GetRequiredService<ILogger<ConvertCommand>>();
 
@@ -138,6 +168,21 @@ public class ConvertCommand : Command
 
             PrintResult(result);
 
+            if (!dryRun && (emitWord || emitPdf || verifyVisual))
+            {
+                await EmitArtifactsAsync(
+                    services,
+                    input,
+                    outputPath,
+                    force,
+                    emitWord,
+                    emitPdf,
+                    verifyVisual,
+                    dpi,
+                    artifactsDir,
+                    context.GetCancellationToken());
+            }
+
             Environment.ExitCode = result.Status switch
             {
                 ConversionStatus.Completed => 0,
@@ -157,6 +202,154 @@ public class ConvertCommand : Command
 
             Environment.ExitCode = 1;
         }
+    }
+
+    private static async Task EmitArtifactsAsync(
+        IServiceProvider services,
+        FileInfo input,
+        string outputRdlcPath,
+        bool force,
+        bool emitWord,
+        bool emitPdf,
+        bool verifyVisual,
+        int dpi,
+        string? artifactsDir,
+        CancellationToken cancellationToken)
+    {
+        var ext = input.Extension.ToLowerInvariant();
+        if (ext != ".docx")
+        {
+            return;
+        }
+
+        var outDir = !string.IsNullOrWhiteSpace(artifactsDir)
+            ? artifactsDir
+            : Path.GetDirectoryName(outputRdlcPath) ?? Path.GetDirectoryName(input.FullName) ?? ".";
+
+        Directory.CreateDirectory(outDir);
+
+        var baseName = Path.GetFileNameWithoutExtension(outputRdlcPath);
+        var baselinePdfPath = Path.Combine(outDir, $"{baseName}.baseline.pdf");
+        var rdlcDocxPath = Path.Combine(outDir, $"{baseName}.rdlc.docx");
+        var rdlcPdfPath = Path.Combine(outDir, $"{baseName}.rdlc.pdf");
+        var diffDir = Path.Combine(outDir, $"{baseName}.visual-diff");
+
+        var wordToPdf = services.GetRequiredService<RdlCore.Rendering.Word.IWordToPdfConverter>();
+        var visualDiff = services.GetRequiredService<RdlCore.Rendering.Validation.IVisualDiffService>();
+        var validationService = services.GetRequiredService<IValidationService>();
+
+        var originalDocxBytes = await File.ReadAllBytesAsync(input.FullName, cancellationToken);
+
+        var rdlcDocument = XDocument.Load(outputRdlcPath);
+        var dataSet = BuildDataSetFromRdl(rdlcDocument);
+
+        if (emitPdf || verifyVisual)
+        {
+            byte[] baselinePdfBytes;
+            await using (var originalStream = new MemoryStream(originalDocxBytes, writable: false))
+            {
+                baselinePdfBytes = await wordToPdf.ConvertDocxToPdfAsync(originalStream, cancellationToken);
+            }
+
+            if (force || !File.Exists(baselinePdfPath))
+            {
+                await File.WriteAllBytesAsync(baselinePdfPath, baselinePdfBytes, cancellationToken);
+            }
+
+            var rdlcPdfBytes = await validationService.RenderToPdfAsync(rdlcDocument, dataSet, cancellationToken);
+
+            if (force || !File.Exists(rdlcPdfPath))
+            {
+                await File.WriteAllBytesAsync(rdlcPdfPath, rdlcPdfBytes, cancellationToken);
+            }
+
+            if (verifyVisual)
+            {
+                var report = await visualDiff.ComparePdfAsync(
+                    baselinePdfBytes,
+                    rdlcPdfBytes,
+                    new RdlCore.Rendering.Validation.VisualDiffOptions(
+                        Dpi: dpi,
+                        RequiredSsim: 1.0,
+                        MaxDifferentPixelRatio: 0.0,
+                        OutputDirectory: diffDir,
+                        WriteDiffImages: true),
+                    cancellationToken);
+
+                if (!report.IsMatch)
+                {
+                    Environment.ExitCode = 1;
+                }
+            }
+        }
+
+        if (emitWord)
+        {
+            var rdlcDocxBytes = await validationService.RenderToWordOpenXmlAsync(rdlcDocument, dataSet, cancellationToken);
+            if (force || !File.Exists(rdlcDocxPath))
+            {
+                await File.WriteAllBytesAsync(rdlcDocxPath, rdlcDocxBytes, cancellationToken);
+            }
+        }
+    }
+
+    private static DataSet BuildDataSetFromRdl(XDocument rdlDocument)
+    {
+        var dataSet = new DataSet();
+
+        var dataSets = rdlDocument.Root?
+            .Elements(RdlNamespaces.Rdl + "DataSets")
+            .Elements(RdlNamespaces.Rdl + "DataSet")
+            .ToList();
+
+        if (dataSets == null || dataSets.Count == 0)
+        {
+            return dataSet;
+        }
+
+        foreach (var dsElement in dataSets)
+        {
+            var name = dsElement.Attribute("Name")?.Value;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                continue;
+            }
+
+            var table = new DataTable(name);
+
+            var fields = dsElement
+                .Element(RdlNamespaces.Rdl + "Fields")?
+                .Elements(RdlNamespaces.Rdl + "Field")
+                .ToList() ?? [];
+
+            foreach (var field in fields)
+            {
+                var fieldName = field.Attribute("Name")?.Value;
+                if (string.IsNullOrWhiteSpace(fieldName))
+                {
+                    continue;
+                }
+
+                if (!table.Columns.Contains(fieldName))
+                {
+                    table.Columns.Add(new DataColumn(fieldName, typeof(string)));
+                }
+            }
+
+            if (table.Columns.Count > 0)
+            {
+                var row = table.NewRow();
+                foreach (DataColumn col in table.Columns)
+                {
+                    row[col] = DBNull.Value;
+                }
+                table.Rows.Add(row);
+            }
+
+            dataSet.Tables.Add(table);
+        }
+
+        return dataSet;
     }
 
     private void PrintResult(ConversionResult result)

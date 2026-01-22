@@ -193,3 +193,14 @@ src/RdlCore.Cli/bin/Debug/net10.0/axiom-rdl.deps.json
 src/RdlCore.Cli/bin/Debug/net10.0/axiom-rdl.deps.json
 tests/RdlCore.Generation.Tests/bin/Debug/net10.0/RdlCore.Generation.Tests.deps.json
 tests/RdlCore.Integration.Tests/bin/Debug/net10.0/RdlCore.Integration.Tests.deps.json
+*.docx
+*.txt
+/.tmp_generated_afterfix.rdlc
+/.tmp_generated_afterfix2.rdlc
+/.tmp_generated_afterfix2_2.rdlc
+/.tmp_generated_afterfix_2.rdlc
+/GuaranteeReturnSingle.rdlc
+/rdlc_change_log.md
+/rdlc_validation_report.md
+/Return of Guarantee 1_1.rdlc
+/.tmp_docx_extract
